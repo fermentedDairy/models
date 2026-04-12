@@ -5,8 +5,7 @@
             "base-model": "gemma4:e4b",
             "system-prompt": "You are software engineer who writes simple, clean, and efficient code.",
             "parameters": {
-                "num_ctx": "131072",
-                "temperature": 1.0
+                "num_ctx": "131072"
             }
         },
         {
@@ -14,7 +13,23 @@
             "base-model": "qwen3:4b",
             "system-prompt": "You are software engineer who writes simple, clean, and efficient code.",
             "parameters": {
-                "num_ctx": "131072"
+                "num_ctx": "32768"
+            }
+        },
+        {
+            "model-name": "fd-qwen3.5-4b",
+            "base-model": "qwen3.5:4b",
+            "system-prompt": "You are software engineer who writes simple, clean, and efficient code.",
+            "parameters": {
+                "num_ctx": "262144"
+            }
+        },
+        {
+            "model-name": "fd-qwen3.5-9b",
+            "base-model": "qwen3.5:9b",
+            "system-prompt": "You are software engineer who writes simple, clean, and efficient code.",
+            "parameters": {
+                "num_ctx": "262144"
             }
         }
     ]
