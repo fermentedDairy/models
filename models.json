@@ -1,0 +1,39 @@
+{
+    "ollama": [
+        {
+            "model-name": "fd-gemma4-e4b",
+            "base-model": "gemma4:e4b",
+            "system-prompt": "You are software engineer who writes simple, clean, and efficient code.",
+            "parameters": {
+                "num_ctx": "131072",
+                "temperature": 1.0
+            }
+        },
+        {
+            "model-name": "fd-qwen3-4b",
+            "base-model": "qwen3:4b",
+            "system-prompt": "You are software engineer who writes simple, clean, and efficient code.",
+            "parameters": {
+                "num_ctx": "131072"
+            }
+        }
+    ],
+    "docker": [
+        {
+            "model-name": "fd-gemma4-e4b",
+            "base-model": "gemma4:e4b",
+            "system-prompt": "You are software engineer who writes simple, clean, and efficient code.",
+            "parameters": {
+                "num_ctx": "131072"
+            }
+        },
+        {
+            "model-name": "fd-qwen3-4b",
+            "base-model": "qwen3:4b",
+            "system-prompt": "You are software engineer who writes simple, clean, and efficient code.",
+            "parameters": {
+                "num_ctx": "131072"
+            }
+        }
+    ]
+}
