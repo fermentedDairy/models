@@ -40,11 +40,8 @@ def generate_modelfiles(models_json_path: str, ollama_dir: str):
                     modelfile_content += f"SYSTEM \"{system_prompt}\"\n\n"
 
                 for key_param, value in params.items():
-                    if key_param == "num_ctx":
-                        modelfile_content += f"PARAMETER num_ctx {value}\n"
-                    elif key_param == "temperature":
-                        modelfile_content += f"PARAMETER temperature {value}\n"
-
+                    modelfile_content += f"PARAMETER {key_param} {value}\n"
+                        
                 output_filepath = os.path.join(output_dir, f"{model_name}-Modelfile")
                 
                 with open(output_filepath, 'w') as f:
