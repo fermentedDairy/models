@@ -9,8 +9,16 @@
             }
         },
         {
-            "model-name": "fd-gemma4-e4b-it",
+            "model-name": "fd-gemma4-e4b-it-q4_k_m",
             "base-model": "gemma4:e4b-it-q4_K_M",
+            "system-prompt": "You are software engineer who writes simple, clean, and efficient code.",
+            "parameters": {
+                "num_ctx": "131072"
+            }
+        },
+        {
+            "model-name": "fd-gemma4-e4b-it-q8_0",
+            "base-model": "gemma4:e4b-it-q8_0",
             "system-prompt": "You are software engineer who writes simple, clean, and efficient code.",
             "parameters": {
                 "num_ctx": "131072"
