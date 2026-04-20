@@ -31,7 +31,7 @@ def generate_modelfiles(models_json_path: str, ollama_dir: str):
             for model_data in model_list:
                 model_name = model_data["model-name"]
                 base_model = model_data["base-model"]
-                system_prompt = model_data["system-prompt"]
+                system_prompt = model_data.get("system-prompt")
                 params = model_data.get("parameters", {})
 
                 modelfile_content = f"FROM {base_model}\n\n"
