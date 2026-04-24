@@ -8,17 +8,10 @@
             }
         },
         {
-            "model-name": "fd-gemma4-e4b-it-q4_k_m",
-            "base-model": "gemma4:e4b-it-q4_K_M",
+            "model-name": "fd-gemma4-26b",
+            "base-model": "gemma4:26b",
             "parameters": {
                 "num_ctx": "128000"
-            }
-        },
-        {
-            "model-name": "fd-gemma4-e4b-it-q8_0",
-            "base-model": "gemma4:e4b-it-q8_0",
-            "parameters": {
-                "num_ctx": "65536"
             }
         },
         {
@@ -28,14 +21,6 @@
                 "num_ctx": "128000"
             }
         },
-        {
-            "model-name": "fd-qwen3.6-35b-a3b-coding",
-            "base-model": "qwen3.6:35b-a3b-coding-bf16",
-            "parameters": {
-                "num_ctx": "128000"
-            }
-        },
-    
         {
             "model-name": "fd-qwen3.5-4b",
             "base-model": "qwen3.5:4b",
