@@ -15,6 +15,13 @@
             }
         },
         {
+            "model-name": "fd-gemma4-31b",
+            "base-model": "gemma4:31b",
+            "parameters": {
+                "num_ctx": "128000"
+            }
+        },
+        {
             "model-name": "fd-qwen3-4b",
             "base-model": "qwen3:4b",
             "parameters": {
