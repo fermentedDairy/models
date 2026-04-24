@@ -30,7 +30,7 @@
         },
         {
             "model-name": "fd-qwen3.6-35b-a3b-coding",
-            "base-model": "qwen3.6:35b-a3b-coding-mxfp8",
+            "base-model": "qwen3.6:35b-a3b-coding-bf16",
             "parameters": {
                 "num_ctx": "128000"
             }
