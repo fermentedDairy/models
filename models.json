@@ -41,6 +41,14 @@
             "parameters": {
                 "num_ctx": "32768"
             }
+        },
+
+        {
+            "model-name": "fd-qwen3.5-27b",
+            "base-model": "qwen3.5:27b",
+            "parameters": {
+                "num_ctx": "32768"
+            }
         }
     ]
 }
