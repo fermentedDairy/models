@@ -40,7 +40,11 @@ def generate_modelfiles(models_json_path: str, ollama_dir: str):
                     modelfile_content += f"SYSTEM \"{system_prompt}\"\n\n"
 
                 for key_param, value in params.items():
-                    modelfile_content += f"PARAMETER {key_param} {value}\n"
+                    if isinstance(value, list):
+                        for item in value:
+                            modelfile_content += f"PARAMETER {key_param} {item}\n"
+                    else:
+                        modelfile_content += f"PARAMETER {key_param} {value}\n"
                         
                 output_filepath = os.path.join(output_dir, f"{model_name}-Modelfile")
                 

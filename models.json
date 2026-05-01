@@ -4,14 +4,29 @@
             "model-name": "fd-gemma4-e4b",
             "base-model": "gemma4:e4b",
             "parameters": {
-                "num_ctx": "128000"
+                "temperature": 0.6,
+                "top_p": 0.95,
+                "top_k": 64,
+                "num_ctx": 65536,
+                "stop": [
+                    "<end_of_turn>",
+                    "<eos>",
+                    "<channel|>"
+                ]
             }
         },
         {
             "model-name": "fd-gemma4-26b",
             "base-model": "gemma4:26b",
             "parameters": {
-                "num_ctx": "128000"
+                "num_ctx": "128000",
+                "temperature": 0.2,
+                "top_p": 0.95,
+                "repeat_penalty": 1.1,
+                "stop": [
+                    "<end_of_turn>",
+                    "<eos>"
+                ]
             }
         },
         {
@@ -25,7 +40,16 @@
             "model-name": "fd-qwen3-4b",
             "base-model": "qwen3:4b",
             "parameters": {
-                "num_ctx": "128000"
+                "temperature": 0.1,
+                "top_p": 0.8,
+                "top_k": 40,
+                "num_ctx": 131072,
+                "stop": [
+                    "<|im_start|>",
+                    "<|im_end|>",
+                    "<|thought_end|>",
+                    "<|file_separator|>"
+                ]
             }
         },
         {
@@ -42,12 +66,20 @@
                 "num_ctx": "32768"
             }
         },
-
         {
             "model-name": "fd-qwen3.5-27b",
             "base-model": "qwen3.5:27b",
             "parameters": {
-                "num_ctx": "32768"
+                "temperature": 0.2,
+                "top_p": 0.95,
+                "top_k": 40,
+                "num_ctx": 32768,
+                "stop": [
+                    "<|im_start|>",
+                    "<|im_end|>",
+                    "<|object_ref|>",
+                    "<|thought_end|>"
+                ]
             }
         }
     ]
