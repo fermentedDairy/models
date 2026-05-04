@@ -30,6 +30,21 @@
             }
         },
         {
+            "model-name": "fd-gemma4-26b-q8",
+            "base-model": "gemma4:26b-a4b-it-q8_0",
+            "parameters": {
+                "num_ctx": "128000",
+                "temperature": 0.2,
+                "top_p": 0.95,
+                "repeat_penalty": 1.1,
+                "stop": [
+                    "<end_of_turn>",
+                    "<eos>"
+                ]
+            }
+        },
+    
+        {
             "model-name": "fd-gemma4-31b",
             "base-model": "gemma4:31b",
             "parameters": {
@@ -79,6 +94,20 @@
                     "<|im_end|>",
                     "<|object_ref|>",
                     "<|thought_end|>"
+                ]
+            }
+        },
+        {
+            "model-name": "fd-qwen3.6-35b",
+            "base-model": "qwen3.6:35b",
+            "parameters": {
+                "temperature": 0.2,
+                "top_p": 0.95,
+                "top_k": 40,
+                "num_ctx": 32768,
+                "stop": [
+                    "<|file_separator|>",
+                    "<|endoftext|>"
                 ]
             }
         }
