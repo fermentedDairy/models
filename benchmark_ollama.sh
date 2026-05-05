@@ -21,8 +21,6 @@ echo "Date: $(date)" >> "$OUTPUT_FILE"
 echo "" >> "$OUTPUT_FILE"
 echo "Prompt: *\"$PROMPT\"*" >> "$OUTPUT_FILE"
 echo "" >> "$OUTPUT_FILE"
-echo "$PROMPT" >> "$OUTPUT_FILE"
-echo "" >> "$OUTPUT_FILE"
 echo "| Model | TTFT (s) | Tokens/sec | Total Tokens |" >> "$OUTPUT_FILE"
 echo "| :--- | :--- | :--- | :--- |" >> "$OUTPUT_FILE"
 
