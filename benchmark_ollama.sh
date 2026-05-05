@@ -17,56 +17,64 @@ fi
 
 # Initialize Markdown file
 echo "# Ollama Model Benchmark Results" > "$OUTPUT_FILE"
+echo "Run Start Time: $(date)" >> "$OUTPUT_FILE"
 echo "Date: $(date)" >> "$OUTPUT_FILE"
 echo "" >> "$OUTPUT_FILE"
 echo "Prompt: *\"$PROMPT\"*" >> "$OUTPUT_FILE"
 echo "" >> "$OUTPUT_FILE"
-echo "| Model | TTFT (s) | Tokens/sec | Total Tokens |" >> "$OUTPUT_FILE"
-echo "| :--- | :--- | :--- | :--- |" >> "$OUTPUT_FILE"
+echo "" >> "$OUTPUT_FILE"
 
 echo "Starting benchmark... Saving results to $OUTPUT_FILE"
 
-for MODEL in $MODELS; do
-    echo "Benchmarking $MODEL..."
+for RUN in 1 2 3; do
+    echo "## Run $RUN" >> "$OUTPUT_FILE"
+    echo "| Model | TTFT (s) | Tokens/sec | Total Tokens |" >> "$OUTPUT_FILE"
+    echo "| :--- | :--- | :--- | :--- |" >> "$OUTPUT_FILE"
 
-    # Warmup call - this makes sure the model is running and loaded before running the benchmark task
-    curl -s -X POST http://localhost:11434/api/generate -d "{
-      \"model\": \"$MODEL\",
-      \"prompt\": \"Say Hello\",
-      \"stream\": false
-    }" > /dev/null 2>&1
+    for MODEL in $MODELS; do
+        echo "Benchmarking $MODEL (Run $RUN)..."
+        
+        # Warmup call - this makes sure the model is running and loaded before running the benchmark task
+        curl -s -X POST http://localhost:11434/api/generate -d "{
+          \"model\": \"$MODEL\",
+          \"prompt\": \"Say Hello\",
+          \"stream\": false
+        }" > /dev/null 2>&1
 
-    # Run the prompt and capture metrics via Ollama API
-    RESPONSE=$(curl -s -X POST http://localhost:11434/api/generate -d "{
-      \"model\": \"$MODEL\",
-      \"prompt\": \"$PROMPT\",
-      \"stream\": false
-    }")
+        # Run the prompt and capture metrics via Ollama API
+        RESPONSE=$(curl -s -X POST http://localhost:11434/api/generate -d "{
+          \"model\": \"$MODEL\",
+          \"prompt\": \"$PROMPT\",
+          \"stream\": false
+        }")
 
-    # Extract durations (in nanoseconds) and token count using jq
-    PROMPT_EVAL_NS=$(echo "$RESPONSE" | jq -r '.prompt_eval_duration // 0')
-    EVAL_NS=$(echo "$RESPONSE" | jq -r '.eval_duration // 0')
-    EVAL_COUNT=$(echo "$RESPONSE" | jq -r '.eval_count // 0')
+        # Extract durations (in nanoseconds) and token count using jq
+        PROMPT_EVAL_NS=$(echo "$RESPONSE" | jq -r '.prompt_eval_duration // 0')
+        EVAL_NS=$(echo "$RESPONSE" | jq -r '.eval_duration // 0')
+        EVAL_COUNT=$(echo "$RESPONSE" | jq -r '.eval_count // 0')
 
-    # Convert nanoseconds to seconds and calculate metrics
-    if [[ "$PROMPT_EVAL_NS" -gt 0 ]]; then
-        TTFT=$(echo "scale=4; $PROMPT_EVAL_NS / 1000000000" | bc -l)
-    else
-        TTFT="N/A"
-    fi
+        # Convert nanoseconds to seconds and calculate metrics
+        if [[ "$PROMPT_EVAL_NS" -gt 0 ]]; then
+            TTFT=$(echo "scale=4; $PROMPT_EVAL_NS / 1000000000" | bc -l)
+        else
+            TTFT="N/A"
+        fi
 
-    if [[ "$EVAL_NS" -gt 0 && "$EVAL_COUNT" -gt 0 ]]; then
-        TOKEN_RATE=$(echo "scale=2; $EVAL_COUNT / ($EVAL_NS / 1000000000)" | bc -l)
-    else
-        TOKEN_RATE="N/A"
-    fi
+        if [[ "$EVAL_NS" -gt 0 && "$EVAL_COUNT" -gt 0 ]]; then
+            TOKEN_RATE=$(echo "scale=2; $EVAL_COUNT / ($EVAL_NS / 1000000000)" | bc -l)
+        else
+            TOKEN_RATE="N/A"
+        fi
 
-    # Append to Markdown table
-    printf "| %s | %s | %s | %s |\n" "$MODEL" "$TTFT" "$TOKEN_RATE" "$EVAL_COUNT" >> "$OUTPUT_FILE"
+        # Append to Markdown table
+        printf "| %s | %s | %s | %s |\n" "$MODEL" "$TTFT" "$TOKEN_RATE" "$EVAL_COUNT" >> "$OUTPUT_FILE"
 
-    # Save raw response to a kotlin file in a benchmark folder named after the model
-    mkdir -p "benchmark/$MODEL"
-    echo "$RESPONSE" > "benchmark/$MODEL/response.json"
+        # Save raw response to a kotlin file in a benchmark folder named after the model
+        mkdir -p "benchmark/$MODEL"
+        echo "$RESPONSE" > "benchmark/$MODEL/response.json"
+    done
+    echo "" >> "$OUTPUT_FILE"
 done
+
 
 echo "Benchmark complete."
