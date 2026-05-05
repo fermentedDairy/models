@@ -23,8 +23,8 @@ echo "Prompt: *\"$PROMPT\"*" >> "$OUTPUT_FILE"
 echo "" >> "$OUTPUT_FILE"
 echo "$PROMPT" >> "$OUTPUT_FILE"
 echo "" >> "$OUTPUT_FILE"
-echo "| Model | TTFT (s) | Tokens/sec |" >> "$OUTPUT_FILE"
-echo "| :--- | :--- | :--- |" >> "$OUTPUT_FILE"
+echo "| Model | TTFT (s) | Tokens/sec | Total Tokens |" >> "$OUTPUT_FILE"
+echo "| :--- | :--- | :--- | :--- |" >> "$OUTPUT_FILE"
 
 echo "Starting benchmark... Saving results to $OUTPUT_FILE"
 
@@ -64,7 +64,7 @@ for MODEL in $MODELS; do
     fi
 
     # Append to Markdown table
-    printf "| %s | %s | %s |\n" "$MODEL" "$TTFT" "$TOKEN_RATE" >> "$OUTPUT_FILE"
+    printf "| %s | %s | %s | %s |\n" "$MODEL" "$TTFT" "$TOKEN_RATE" "$EVAL_COUNT" >> "$OUTPUT_FILE"
 
     # Save raw response to a kotlin file in a benchmark folder named after the model
     mkdir -p "benchmark/$MODEL"
