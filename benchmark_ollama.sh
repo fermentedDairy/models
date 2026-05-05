@@ -17,7 +17,6 @@ fi
 
 # Initialize Markdown file
 echo "# Ollama Model Benchmark Results" > "$OUTPUT_FILE"
-echo "Run Start Time: $(date)" >> "$OUTPUT_FILE"
 echo "Date: $(date)" >> "$OUTPUT_FILE"
 echo "" >> "$OUTPUT_FILE"
 echo "Prompt: *\"$PROMPT\"*" >> "$OUTPUT_FILE"
