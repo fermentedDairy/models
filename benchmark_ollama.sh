@@ -69,9 +69,9 @@ for RUN in 1 2 3; do
         # Append to Markdown table
         printf "| %s | %s | %s | %s |\n" "$MODEL" "$TTFT" "$TOKEN_RATE" "$EVAL_COUNT" >> "$OUTPUT_FILE"
 
-        # Save raw response to a kotlin file in a benchmark folder named after the model
+        # Save raw response as pretty JSON in a benchmark folder named after the model and run
         mkdir -p "benchmark/$MODEL"
-        echo "$RESPONSE" > "benchmark/$MODEL/response.json"
+        echo "$RESPONSE" | jq . > "benchmark/$MODEL/response_run${RUN}.json"
     done
     echo "" >> "$OUTPUT_FILE"
 done
