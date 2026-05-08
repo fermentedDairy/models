@@ -18,9 +18,13 @@ fi
 # Initialize Markdown file
 echo "# Ollama Model Benchmark Results" > "$OUTPUT_FILE"
 echo "Date: $(date)" >> "$OUTPUT_FILE"
+echo "System Specs:" >> "$OUTPUT_FILE"
+echo "- CPU: $(lscpu | grep 'Model name' | sed 's/Model name: //')" >> "$OUTPUT_FILE"
+echo "- RAM: $(free -h | awk '/^Mem:/ {print $2}')" >> "$OUTPUT_FILE"
+echo "- OS: $(uname -sr)" >> "$OUTPUT_FILE"
+echo "- GPU: $(lspci | grep -i 'VGA\|3D' | cut -d ':' -f3- | sed 's/^ *//')" >> "$OUTPUT_FILE"
 echo "" >> "$OUTPUT_FILE"
 echo "Prompt: *\"$PROMPT\"*" >> "$OUTPUT_FILE"
-echo "" >> "$OUTPUT_FILE"
 echo "" >> "$OUTPUT_FILE"
 
 echo "Starting benchmark... Saving results to $OUTPUT_FILE"
