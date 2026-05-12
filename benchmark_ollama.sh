@@ -36,9 +36,6 @@ for RUN in 1 2 3; do
 
     for MODEL in $MODELS; do
         echo "Benchmarking $MODEL (Run $RUN)..."
-
-        # Start Ollama
-        ollama run $MODEL
         
         # Warmup call - this makes sure the model is running and loaded before running the benchmark task
         curl -s -X POST http://localhost:11434/api/generate -d "{
