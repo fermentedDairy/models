@@ -36,6 +36,9 @@ for RUN in 1 2 3; do
 
     for MODEL in $MODELS; do
         echo "Benchmarking $MODEL (Run $RUN)..."
+
+        # Start Ollama
+        ollama run $MODEL
         
         # Warmup call - this makes sure the model is running and loaded before running the benchmark task
         curl -s -X POST http://localhost:11434/api/generate -d "{
@@ -75,6 +78,7 @@ for RUN in 1 2 3; do
         # Save raw response as pretty JSON in a benchmark folder named after the model and run
         mkdir -p "benchmark/$MODEL"
         echo "$RESPONSE" | jq . > "benchmark/$MODEL/response_run${RUN}.json"
+        ollama stop $MODEL
     done
     echo "" >> "$OUTPUT_FILE"
 done
