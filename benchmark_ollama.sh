@@ -4,6 +4,9 @@
 # Measures Time to First Token (TTFT) and Token Rate (tokens/sec)
 # Saves results to a Markdown file
 
+# Create models if required
+. create_models.sh
+
 PROMPT="Write a short kotlin function that calculates the nth Fibonacci number. Use a recursive function without memoisation."
 OUTPUT_FILE="benchmark_results.md"
 
