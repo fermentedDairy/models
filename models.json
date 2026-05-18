@@ -123,6 +123,23 @@
                     "<|endoftext|>"
                 ]
             }
+        },
+        {
+            "model-name": "fd-qwen3-coder-30b",
+            "base-model": "qwen3-coder:30b",
+            "parameters": {
+                "num_ctx": 32768,
+                "temperature": 0.2,
+                "top_p": 0.90,
+                "repeat_penalty": 1.10,
+                "repeat_last_n": 64,
+                "presence_penalty": 1.5,
+                "stop": [
+                    "<|im_start|>",
+                    "<|im_end|>",
+                    "<|object_ref_start|>"
+                ]
+            }
         }
     ]
 }
