@@ -11,7 +11,6 @@
                 "stop": [
                     "<turn|>",
                     "<|turn>",
-                    "<channel|>",
                     "<eos>"
                 ]
             }
@@ -27,7 +26,6 @@
                 "stop": [
                     "<turn|>",
                     "<|turn>",
-                    "<channel|>",
                     "<eos>"
                 ]
             }
@@ -43,7 +41,6 @@
                 "stop": [
                     "<turn|>",
                     "<|turn>",
-                    "<channel|>",
                     "<eos>"
                 ]
             }
@@ -59,7 +56,6 @@
                 "stop": [
                     "<turn|>",
                     "<|turn>",
-                    "<channel|>",
                     "<eos>"
                 ]
             }
