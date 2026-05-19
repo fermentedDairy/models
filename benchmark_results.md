@@ -1,5 +1,5 @@
 # Ollama Model Benchmark Results
-Date: Tue May 12 15:46:32 UTC 2026
+Date: Mon May 18 20:07:04 UTC 2026
 System Specs:
 - CPU:                              AMD Ryzen 5 5500
 - RAM: 30Gi
@@ -11,39 +11,42 @@ Prompt: *"Write a short kotlin function that calculates the nth Fibonacci number
 ## Run 1
 | Model | TTFT (s) | Tokens/sec | Total Tokens |
 | :--- | :--- | :--- | :--- |
-| fd-gemma4-26b | .2799 | 20.56 | 657 |
-| fd-gemma4-26b-q8 | .3899 | 12.42 | 524 |
-| fd-gemma4-31b | 2.4609 | 2.97 | 621 |
-| fd-gemma4-e4b | .0269 | 76.24 | 475 |
-| fd-qwen3-4b | .2616 | 17.67 | 4601 |
-| fd-qwen3.5-27b | 2.1047 | 3.18 | 186 |
-| fd-qwen3.5-4b | .0388 | 66.81 | 2326 |
-| fd-qwen3.5-9b | .0519 | 46.90 | 235 |
-| fd-qwen3.6-35b | .4420 | 11.59 | 1580 |
+| fd-gemma4-26b | .2683 | 21.77 | 322 |
+| fd-gemma4-26b-q8 | .3887 | 12.58 | 293 |
+| fd-gemma4-31b | 2.4654 | 3.01 | 425 |
+| fd-gemma4-e4b | .0270 | 76.43 | 425 |
+| fd-qwen3-4b | .2607 | 17.72 | 4572 |
+| fd-qwen3-coder-30b | .2589 | 31.97 | 157 |
+| fd-qwen3.5-27b | 2.0735 | 3.18 | 186 |
+| fd-qwen3.5-4b | .0398 | 67.77 | 305 |
+| fd-qwen3.5-9b | .0505 | 47.04 | 215 |
+| fd-qwen3.6-35b | .4535 | 11.64 | 1065 |
 
 ## Run 2
 | Model | TTFT (s) | Tokens/sec | Total Tokens |
 | :--- | :--- | :--- | :--- |
-| fd-gemma4-26b | .2751 | 21.32 | 549 |
-| fd-gemma4-26b-q8 | .3897 | 12.37 | 583 |
-| fd-gemma4-31b | 2.4698 | 3.01 | 429 |
-| fd-gemma4-e4b | .0270 | 76.15 | 444 |
-| fd-qwen3-4b | .2617 | 19.24 | 3510 |
-| fd-qwen3.5-27b | 2.1088 | 3.18 | 223 |
-| fd-qwen3.5-4b | .0395 | 67.46 | 255 |
-| fd-qwen3.5-9b | .0507 | 46.81 | 265 |
-| fd-qwen3.6-35b | .4473 | 11.60 | 1670 |
+| fd-gemma4-26b | .2727 | 21.68 | 340 |
+| fd-gemma4-26b-q8 | .3902 | 12.56 | 363 |
+| fd-gemma4-31b | 2.4634 | 3.00 | 456 |
+| fd-gemma4-e4b | .0262 | 75.83 | 565 |
+| fd-qwen3-4b | .2617 | 17.74 | 4563 |
+| fd-qwen3-coder-30b | .2591 | 31.97 | 157 |
+| fd-qwen3.5-27b | 2.0764 | 3.17 | 186 |
+| fd-qwen3.5-4b | .0372 | 67.93 | 483 |
+| fd-qwen3.5-9b | .0503 | 46.98 | 358 |
+| fd-qwen3.6-35b | .4403 | 11.66 | 1105 |
 
 ## Run 3
 | Model | TTFT (s) | Tokens/sec | Total Tokens |
 | :--- | :--- | :--- | :--- |
-| fd-gemma4-26b | .2721 | 21.13 | 657 |
-| fd-gemma4-26b-q8 | .3943 | 12.38 | 567 |
-| fd-gemma4-31b | 2.4681 | 2.96 | 683 |
-| fd-gemma4-e4b | .0268 | 75.80 | 567 |
-| fd-qwen3-4b | .2614 | 16.34 | 5608 |
-| fd-qwen3.5-27b | 2.0740 | 3.17 | 186 |
-| fd-qwen3.5-4b | .0395 | 67.54 | 306 |
-| fd-qwen3.5-9b | .0508 | 46.49 | 1762 |
-| fd-qwen3.6-35b | .4428 | 11.56 | 1485 |
+| fd-gemma4-26b | .2710 | 21.74 | 317 |
+| fd-gemma4-26b-q8 | .3914 | 12.54 | 363 |
+| fd-gemma4-31b | 2.4982 | 3.01 | 413 |
+| fd-gemma4-e4b | .0270 | 75.92 | 555 |
+| fd-qwen3-4b | .2611 | 18.10 | 4299 |
+| fd-qwen3-coder-30b | .2589 | 31.97 | 157 |
+| fd-qwen3.5-27b | 2.0796 | 3.17 | 199 |
+| fd-qwen3.5-4b | .0397 | 67.78 | 465 |
+| fd-qwen3.5-9b | .0507 | 47.14 | 215 |
+| fd-qwen3.6-35b | .4409 | 11.63 | 1595 |
 
