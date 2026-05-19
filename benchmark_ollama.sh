@@ -29,6 +29,11 @@ echo "- GPU: $(lspci | grep -i 'VGA\|3D' | cut -d ':' -f3- | sed 's/^ *//')" >> 
 echo "" >> "$OUTPUT_FILE"
 echo "Prompt: *\"$PROMPT\"*" >> "$OUTPUT_FILE"
 echo "" >> "$OUTPUT_FILE"
+echo "### Models Benchmarked" >> "$OUTPUT_FILE"
+for MODEL in $MODELS; do
+    echo "- $MODEL" >> "$OUTPUT_FILE"
+done
+echo "" >> "$OUTPUT_FILE"
 
 echo "Starting benchmark... Saving results to $OUTPUT_FILE"
 
