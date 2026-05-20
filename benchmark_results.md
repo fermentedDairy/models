@@ -1,10 +1,10 @@
 # Ollama Model Benchmark Results
 Date: Wed May 20 19:55:53 SAST 2026
 System Specs:
-- CPU:                              AMD Ryzen 5 PRO 4650U with Radeon Graphics
-- RAM: 14Gi
-- OS: Linux 6.17.0-29-generic
-- GPU: Advanced Micro Devices, Inc. [AMD/ATI] Renoir [Radeon Vega Series / Radeon Vega Mobile Series] (rev d3)
+- CPU:                              AMD Ryzen 5 5500
+- RAM: 30Gi
+- OS: Linux 6.17.0-23-generic
+- GPU: NVIDIA Corporation GA106 [GeForce RTX 3060 Lite Hash Rate] (rev a1)
 
 Prompt: *"Write a short kotlin function that calculates the nth Fibonacci number. Use a recursive function without memoisation."*
 
