@@ -38,6 +38,7 @@ echo "" >> "$OUTPUT_FILE"
 echo "Starting benchmark... Saving results to $OUTPUT_FILE"
 
 for RUN in 1 2 3; do
+    echo "" > "responses_run${RUN}.txt"
     echo "## Run $RUN" >> "$OUTPUT_FILE"
     echo "| Model | TTFT (s) | Tokens/sec | Total Tokens |" >> "$OUTPUT_FILE"
     echo "| :--- | :--- | :--- | :--- |" >> "$OUTPUT_FILE"
@@ -83,6 +84,12 @@ for RUN in 1 2 3; do
         # Save raw response as pretty JSON in a benchmark folder named after the model and run
         mkdir -p "benchmark/$MODEL"
         echo "$RESPONSE" | jq . > "benchmark/$MODEL/response_run${RUN}.json"
+
+        # Extract and format response to run-specific file
+        echo "$MODEL" >> "benchmark/responses_run${RUN}.txt"
+        echo "$RESPONSE" | jq -r '.response // empty' >> "responses_run${RUN}.txt"
+        echo "" >> "responses_run${RUN}.txt"
+
         ollama stop $MODEL
     done
     echo "" >> "$OUTPUT_FILE"
