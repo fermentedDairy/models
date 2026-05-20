@@ -13,6 +13,9 @@ OUTPUT_FILE="benchmark_results.md"
 # Ensure we have the list of models
 MODELS=$(ls ollama/*Modelfile | sed 's|ollama/||;s/-Modelfile//')
 
+OLLAMA_HOST="${FD_OLLAMA_SERVER:-localhost}"
+OLLAMA_URL="http://$OLLAMA_HOST:11434/api/generate"
+
 if [ -z "$MODELS" ]; then
     echo "No models found in ollama/ folder."
     exit 1
@@ -47,14 +50,14 @@ for RUN in 1 2 3; do
         echo "Benchmarking $MODEL (Run $RUN)..."
         
         # Warmup call - this makes sure the model is running and loaded before running the benchmark task
-        curl -s -X POST http://localhost:11434/api/generate -d "{
+        curl -s -X POST "$OLLAMA_URL" -d "{
           \"model\": \"$MODEL\",
           \"prompt\": \"Say Hello\",
           \"stream\": false
         }" > /dev/null 2>&1
 
         # Run the prompt and capture metrics via Ollama API
-        RESPONSE=$(curl -s -X POST http://localhost:11434/api/generate -d "{
+        RESPONSE=$(curl -s -X POST "$OLLAMA_URL" -d "{
           \"model\": \"$MODEL\",
           \"prompt\": \"$PROMPT\",
           \"stream\": false
