@@ -16,6 +16,8 @@ MODELS=$(ls ollama/*Modelfile | sed 's|ollama/||;s/-Modelfile//')
 OLLAMA_HOST="${FD_OLLAMA_SERVER:-localhost}"
 OLLAMA_URL="http://$OLLAMA_HOST:11434/api/generate"
 
+mkdir -p benchmark
+
 if [ -z "$MODELS" ]; then
     echo "No models found in ollama/ folder."
     exit 1
@@ -41,7 +43,7 @@ echo "" >> "$OUTPUT_FILE"
 echo "Starting benchmark... Saving results to $OUTPUT_FILE"
 
 for RUN in 1 2 3; do
-    echo "" > "responses_run${RUN}.txt"
+    echo "" > "benchmark/responses_run${RUN}.txt"
     echo "## Run $RUN" >> "$OUTPUT_FILE"
     echo "| Model | TTFT (s) | Tokens/sec | Total Tokens |" >> "$OUTPUT_FILE"
     echo "| :--- | :--- | :--- | :--- |" >> "$OUTPUT_FILE"
@@ -90,8 +92,8 @@ for RUN in 1 2 3; do
 
         # Extract and format response to run-specific file
         echo "$MODEL" >> "benchmark/responses_run${RUN}.txt"
-        echo "$RESPONSE" | jq -r '.response // empty' >> "responses_run${RUN}.txt"
-        echo "" >> "responses_run${RUN}.txt"
+        echo "$RESPONSE" | jq -r '.response // empty' >> "benchmark/responses_run${RUN}.txt"
+        echo "" >> "benchmark/responses_run${RUN}.txt"
 
         ollama stop $MODEL
     done
