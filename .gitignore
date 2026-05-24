@@ -1,4 +1,4 @@
 # Directories to ignore
-/ollama
+/ollama/ollama
 /docker
-/benchmark
+/ollama/benchmark
