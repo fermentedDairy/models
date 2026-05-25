@@ -9,7 +9,7 @@ python3 generate_modelfiles.py
 
 echo "--- Starting Ollama Model Creation ---"
 
-OLLAMA_DIR="./ollama"
+OLLAMA_DIR="./modelfiles"
 
 # 2. Loop through all files in the ollama directory that end with -Modelfile
 for modelfile in ${OLLAMA_DIR}/*-Modelfile; do
