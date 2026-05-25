@@ -1,0 +1,38 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama (smarty pants)",
+      "options": {
+        "baseURL": "http://ed-smarty-pants:11434/v1"
+      },
+      "models": {
+        "fd-gemma4-e4b": {
+          "name": "gemma4 E4B (local customisation)"
+        },
+        "fd-gemma4-26b": {
+          "name": "gemma4 26b A4B (local customisation)"
+        },
+        "fd-qwen3-4b": {
+          "name": "qwen3 4B (local customisation)"
+        },
+        "fd-qwen3.5-4b": {
+          "name": "qwen3.5 4B (local customisation)"
+        },
+        "fd-qwen3.5-9b": {
+          "name": "qwen3.5 9B (local customisation)"
+        },
+        "fd-qwen3.5-27b": {
+          "name": "qwen3.5 27B (local customisation)"
+        },
+        "fd-qwen3-coder-30b": {
+          "name": "qwen3 Coder 30B (local customisation)"
+        },
+        "fd-qwen3.6-35b": {
+          "name": "qwen3.6 35B (local customisation)"
+        }
+      }
+    }
+  }
+}
