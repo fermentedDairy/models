@@ -1,0 +1,101 @@
+[
+    {
+        "model-name": "fd-gemma4-e4b",
+        "base-model": "google/gemma-4-E4B-it",
+        "parameters": {
+            "temperature": 0.6,
+            "top_p": 0.95,
+            "top_k": 64,
+            "num_ctx": 65536,
+            "stop": [
+                "<turn|>",
+                "<|turn>",
+                "<eos>"
+            ]
+        }
+    },
+    {
+        "model-name": "fd-gemma4-26b",
+        "base-model": "google/gemma-4-26B-A4B-it",
+        "assistant-model": "google/gemma-4-26B-A4B-it-assistant",
+        "quantization": "Q4_K_M",
+        "parameters": {
+            "num_ctx": "128000",
+            "temperature": 0.2,
+            "top_p": 0.95,
+            "repeat_penalty": 1.1,
+            "stop": [
+                "<turn|>",
+                "<|turn>",
+                "<eos>"
+            ]
+        }
+    },
+    {
+        "model-name": "fd-gemma4-31b",
+        "base-model": "google/gemma-4-31B-it",
+        "assistant-model": "google/gemma-4-31B-it-assistant",
+        "quantization": "Q4_K_M",
+        "parameters": {
+            "num_ctx": "128000",
+            "temperature": 0.2,
+            "top_p": 0.95,
+            "repeat_penalty": 1.1,
+            "stop": [
+                "<turn|>",
+                "<|turn>",
+                "<eos>"
+            ]
+        }
+    },
+    {
+        "model-name": "fd-qwen3.5-27b",
+        "base-model": "Qwen/Qwen3.5-27B",
+        "quantization": "Q4_K_M",
+        "parameters": {
+            "temperature": 0.2,
+            "top_p": 0.95,
+            "top_k": 40,
+            "num_ctx": 32768,
+            "stop": [
+                "<|im_start|>",
+                "<|im_end|>",
+                "<|object_ref|>",
+                "<|thought_end|>"
+            ]
+        }
+    },
+    {
+        "model-name": "fd-qwen3.6-35b",
+        "base-model": "Qwen/Qwen3.6-35B-A3B",
+        "quantization": "Q4_K_M",
+        "parameters": {
+            "temperature": 0.2,
+            "top_p": 0.95,
+            "top_k": 40,
+            "num_ctx": 32768,
+            "stop": [
+                "<|file_separator|>",
+                "<|endoftext|>"
+            ]
+        }
+    },
+    {
+        "model-name": "fd-qwen3-coder-30b",
+        "base-model": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+        "quantization": "Q4_K_M",
+        "parameters": {
+            "num_ctx": 32768,
+            "temperature": 0.2,
+            "top_p": 0.90,
+            "repeat_penalty": 1.10,
+            "repeat_last_n": 64,
+            "presence_penalty": 1.5,
+            "stop": [
+                "<|im_start|>",
+                "<|im_end|>",
+                "<|object_ref_start|>"
+            ]
+        }
+    }
+]
