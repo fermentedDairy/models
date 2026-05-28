@@ -1,8 +1,14 @@
 [
     {
         "model-name": "fd-gemma4-e4b",
-        "base-model": "unsloth/gemma-4-E4B-it-GGUF:Q4_K_M",
-        "assistant-model": "AtomicChat/gemma-4-E4B-it-assistant-GGUF:Q4_K_M",
+        "base-model": {
+            "repo": "unsloth/gemma-4-E4B-it-GGUF",
+            "file": "gemma-4-E4B-it-Q5_K_M.gguf"
+        },
+        "assistant-model": {
+            "repo": "AtomicChat/gemma-4-E4B-it-assistant-GGUF",
+            "file": "gemma-4-E4B-it-assistant.Q5_K_M.gguf"
+        },
         "parameters": {
             "temperature": 0.6,
             "top_p": 0.95,
@@ -17,8 +23,14 @@
     },
     {
         "model-name": "fd-gemma4-26b",
-        "base-model": "unsloth/gemma-4-26B-A4B-it-GGUF:UD-Q4_K_M",
-        "assistant-model": "AtomicChat/gemma-4-26B-A4B-it-assistant-GGUF:Q4_K_M",
+        "base-model": {
+            "repo": "unsloth/gemma-4-26B-A4B-it-GGUF",
+            "file": "gemma-4-26B-A4B-it-UD-Q4_K_M.gguf"
+        },
+        "assistant-model": {
+            "repo": "gemma-4-26B-A4B-it-assistant.Q4_K_M.gguf",
+            "file": "Q4_K_M"
+        },
         "parameters": {
             "num_ctx": "128000",
             "temperature": 0.2,
@@ -33,8 +45,14 @@
     },
     {
         "model-name": "fd-qwen3.5-27b",
-        "base-model": "unsloth/Qwen3.5-27B-GGUF:Q4_K_M",
-        "assistant-model": "unsloth/Qwen3.5-2B-GGUF:Q4_K_M",
+        "base-model": {
+            "repo": "unsloth/Qwen3.5-27B-GGUF",
+            "file": "Qwen3.5-27B-Q5_K_M.gguf"
+        },
+        "assistant-model": {
+            "repo": "unsloth/Qwen3.5-2B-GGUF",
+            "file": "Qwen3.5-2B-Q5_K_M.gguf"
+        },
         "parameters": {
             "temperature": 0.2,
             "top_p": 0.95,
@@ -50,7 +68,10 @@
     },
     {
         "model-name": "fd-qwen3.6-35b",
-        "base-model": "unsloth/Qwen3.5-35B-A3B-GGUF:Q4_K_M",
+        "base-model": {
+            "repo": "unsloth/Qwen3.5-35B-A3B-GGUF",
+            "file": "Qwen3.5-35B-A3B-Q4_K_M.gguf"
+        },
         "parameters": {
             "temperature": 0.2,
             "top_p": 0.95,
@@ -64,7 +85,10 @@
     },
     {
         "model-name": "fd-qwen3-coder-30b",
-        "base-model": "unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:Q4_K_M",
+        "base-model": {
+            "repo": "unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+            "file": "Qwen3-Coder-30B-A3B-Instruct-Q4_K_M.gguf"
+        },
         "parameters": {
             "num_ctx": 32768,
             "temperature": 0.2,

@@ -17,8 +17,10 @@ fi
 # Parse the JSON file and iterate through each model entry
 jq -c '.[]' "$JSON_FILE" | while read -r entry; do
   MODEL_NAME=$(echo "$entry" | jq -r '."model-name"')
-  BASE_MODEL=$(echo "$entry" | jq -r '."base-model"')
-  ASSISTANT_MODEL=$(echo "$entry" | jq -r '."assistant-model"')
+  BASE_REPO=$(echo "$entry" | jq -r '."base-model".repo // empty')
+  BASE_FILE=$(echo "$entry" | jq -r '."base-model".file // empty')
+  ASSISTANT_REPO=$(echo "$entry" | jq -r '."assistant-model".repo // empty')
+  ASSISTANT_FILE=$(echo "$entry" | jq -r '."assistant-model".file // empty')
 
   # Create a directory for the current model
   TARGET_DIR="$MODELS_DIR/$MODEL_NAME"
@@ -27,15 +29,15 @@ jq -c '.[]' "$JSON_FILE" | while read -r entry; do
   echo "Processing model: $MODEL_NAME"
 
   # Download base model
-  if [[ "$BASE_MODEL" != "null" ]]; then
-    echo "  Downloading base model: $BASE_MODEL"
-    hf download "$BASE_MODEL" --local-dir "$TARGET_DIR/base-model"
+  if [[ -n "$BASE_REPO" ]]; then
+    echo "  Downloading base model: $BASE_REPO ($BASE_FILE)"
+    hf download "$BASE_REPO" "$BASE_FILE" --local-dir "$TARGET_DIR/base-model"
   fi
 
   # Download assistant model if it exists
-  if [[ "$ASSISTANT_MODEL" != "null" ]]; then
-    echo "  Downloading assistant model: $ASSISTANT_MODEL"
-    hf download "$ASSISTANT_MODEL" --local-dir "$TARGET_DIR/assistant-model"
+  if [[ -n "$ASSISTANT_REPO" ]]; then
+    echo "  Downloading assistant model: $ASSISTANT_REPO ($ASSISTANT_FILE)"
+    hf download "$ASSISTANT_REPO" "$ASSISTANT_FILE" --local-dir "$TARGET_DIR/assistant-model"
   fi
 done
 
