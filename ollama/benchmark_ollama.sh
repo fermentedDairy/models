@@ -11,7 +11,7 @@ PROMPT="Write a short kotlin function that calculates the nth Fibonacci number. 
 OUTPUT_FILE="benchmark_results.md"
 
 # Ensure we have the list of models
-MODELS=$(ls ollama/*Modelfile | sed 's|ollama/||;s/-Modelfile//')
+MODELS=$(ls modelfiles/*Modelfile | sed 's|modelfiles/||;s/-Modelfile//')
 
 OLLAMA_HOST="${FD_OLLAMA_SERVER:-localhost}"
 OLLAMA_URL="http://$OLLAMA_HOST:11434/api/generate"
