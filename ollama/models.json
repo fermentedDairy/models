@@ -147,7 +147,11 @@
             "stop": [
                 "<|im_start|>",
                 "<|im_end|>",
-                "<|object_ref_start|>"
+                "<|object_ref_start|>",
+                "<tool_call>",
+                "</tool_call>",
+                "<function>",
+                "</function>"
             ]
         }
     },
