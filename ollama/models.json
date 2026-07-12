@@ -143,15 +143,11 @@
             "top_p": 0.90,
             "repeat_penalty": 1.10,
             "repeat_last_n": 64,
-            "presence_penalty": 1.5,
+            "presence_penalty": 0.0,
             "stop": [
                 "<|im_start|>",
                 "<|im_end|>",
-                "<|object_ref_start|>",
-                "<tool_call>",
-                "</tool_call>",
-                "<function>",
-                "</function>"
+                "<|object_ref_start|>"
             ]
         }
     },
