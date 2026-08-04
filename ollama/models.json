@@ -139,7 +139,7 @@
         "base-model": "qwen3-coder:30b",
         "parameters": {
             "num_ctx": 32768,
-            "temperature": 0.2,
+            "temperature": 0.1,
             "top_p": 0.90,
             "repeat_penalty": 1.10,
             "repeat_last_n": 64,
@@ -147,7 +147,10 @@
             "stop": [
                 "<|im_start|>",
                 "<|im_end|>",
-                "<|object_ref_start|>"
+                "<|tool_call_start|>",
+                "<|tool_call_end|>",
+                "<|object_ref_start|>",
+                "<|box_start|>"
             ]
         }
     },
