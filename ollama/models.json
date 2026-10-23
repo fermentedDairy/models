@@ -175,5 +175,32 @@
             "repeat_last_n": 64,
             "presence_penalty": 1.5
         }
+    },
+    {
+        "model-name": "fd-ornith-9b",
+        "base-model": "ornith:9b",
+        "parameters": {
+            "num_ctx": 16384,
+            "temperature": 0.2,
+            "top_p": 0.95,
+            "repeat_penalty": 1.10,
+            "repeat_last_n": 64,
+            "presence_penalty": 1.5,
+            "num_predict": 4096
+        }
+    },
+    {
+        "model-name": "fd-ornith-35b",
+        "base-model": "ornith:35b",
+        "parameters": {
+            "num_ctx": 16384,
+            "temperature": 0.2,
+            "top_p": 0.9,
+            "repeat_penalty": 1.10,
+            "repeat_last_n": 64,
+            "presence_penalty": 1.5,
+            "num_predict": 4096,
+            "top_k": 40
+        }
     }
 ]
