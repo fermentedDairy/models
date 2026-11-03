@@ -1,5 +1,4 @@
 # Directories to ignore
-/ollama/modelfiles
 /docker
 /ollama/benchmark
 /hugging-face/models

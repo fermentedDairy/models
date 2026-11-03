@@ -1,12 +1,5 @@
 #!/bin/bash
 
-# 0. Clear target directories
-rm -rf ollama
-
-# 1. Run the Python script to generate Modelfiles (if it hasn't been run, or to ensure up-to-date state)
-echo "Running model file generation script..."
-python3 generate_modelfiles.py
-
 echo "--- Starting Ollama Model Creation ---"
 
 OLLAMA_DIR="./modelfiles"
