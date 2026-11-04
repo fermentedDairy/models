@@ -1,19 +1,22 @@
 # Ollama Model Benchmark Results
-Date: Sun Jun 21 07:43:26 UTC 2026
+Date: Tue Nov  3 20:05:54 UTC 2026
 System Specs:
 - CPU:                              AMD Ryzen 5 5500
 - RAM: 30Gi
-- OS: Linux 6.17.0-35-generic
+- OS: Linux 6.17.0-41-generic
 - GPU: NVIDIA Corporation GA106 [GeForce RTX 3060 Lite Hash Rate] (rev a1)
 
 Prompt: *"Write a short kotlin function that calculates the nth Fibonacci number. Use a recursive function without memoisation."*
 
 ### Models Benchmarked
+- fd-flint-40b
 - fd-gemma4-12b
 - fd-gemma4-26b
 - fd-gemma4-26b-q8
 - fd-gemma4-31b
 - fd-gemma4-e4b
+- fd-ornith-35b
+- fd-ornith-9b
 - fd-qwen2.5-coder-14b
 - fd-qwen2.5-coder-32b
 - fd-qwen3-4b
@@ -26,51 +29,60 @@ Prompt: *"Write a short kotlin function that calculates the nth Fibonacci number
 ## Run 1
 | Model | TTFT (s) | Tokens/sec | Total Tokens |
 | :--- | :--- | :--- | :--- |
-| fd-gemma4-12b | .1139 | 40.37 | 478 |
-| fd-gemma4-26b | .6481 | 36.75 | 430 |
-| fd-gemma4-26b-q8 | 1.1422 | 21.62 | 480 |
-| fd-gemma4-31b | 1.5537 | 3.22 | 498 |
-| fd-gemma4-e4b | .0514 | 74.57 | 927 |
-| fd-qwen2.5-coder-14b | .4868 | 13.41 | 280 |
-| fd-qwen2.5-coder-32b | 2.0814 | 3.77 | 305 |
-| fd-qwen3-4b | .2906 | 25.51 | 571 |
-| fd-qwen3-coder-30b | .3441 | 35.74 | 188 |
-| fd-qwen3.5-27b | 1.8376 | 5.04 | 201 |
-| fd-qwen3.5-4b | .1728 | 54.60 | 127970 |
-| fd-qwen3.5-9b | .1051 | 53.41 | 1274 |
-| fd-qwen3.6-35b | .5594 | 39.28 | 1314 |
+| fd-flint-40b | 1.0648 | 55.86 | 438 |
+| fd-gemma4-12b | 6.0766 | 42.12 | 538 |
+| fd-gemma4-26b | 1.1907 | 22.33 | 871 |
+| fd-gemma4-26b-q8 | 1.0839 | 23.57 | 632 |
+| fd-gemma4-31b | 1.6182 | 3.19 | 492 |
+| fd-gemma4-e4b | .0468 | 78.69 | 1053 |
+| fd-ornith-35b | .6779 | 23.81 | 373 |
+| fd-ornith-9b | .0710 | 57.64 | 132 |
+| fd-qwen2.5-coder-14b | .0514 | 35.00 | 168 |
+| fd-qwen2.5-coder-32b | 1.5598 | 4.24 | 281 |
+| fd-qwen3-4b | .2377 | 28.99 | 434 |
+| fd-qwen3-coder-30b | .2141 | 42.70 | 196 |
+| fd-qwen3.5-27b | 1.4558 | 5.64 | 264 |
+| fd-qwen3.5-4b | .1225 | 86.04 | 1591 |
+| fd-qwen3.5-9b | .1217 | 55.67 | 373 |
+| fd-qwen3.6-35b | .8567 | 38.73 | 868 |
 
 ## Run 2
 | Model | TTFT (s) | Tokens/sec | Total Tokens |
 | :--- | :--- | :--- | :--- |
-| fd-gemma4-12b | .1147 | 40.43 | 393 |
-| fd-gemma4-26b | .5577 | 36.41 | 528 |
-| fd-gemma4-26b-q8 | 1.4212 | 21.29 | 518 |
-| fd-gemma4-31b | 1.5670 | 3.23 | 500 |
-| fd-gemma4-e4b | .0443 | 75.12 | 930 |
-| fd-qwen2.5-coder-14b | .4901 | 13.45 | 181 |
-| fd-qwen2.5-coder-32b | 2.0701 | 3.80 | 200 |
-| fd-qwen3-4b | .2963 | 17.27 | 5780 |
-| fd-qwen3-coder-30b | .3434 | 36.21 | 180 |
-| fd-qwen3.5-27b | 2.4976 | 3.93 | 181 |
-| fd-qwen3.5-4b | .1633 | 81.62 | 342 |
-| fd-qwen3.5-9b | .1144 | 53.96 | 592 |
-| fd-qwen3.6-35b | .5575 | 38.18 | 1211 |
+| fd-flint-40b | .2875 | 52.80 | 245 |
+| fd-gemma4-12b | .1226 | 42.00 | 630 |
+| fd-gemma4-26b | .7589 | 41.85 | 735 |
+| fd-gemma4-26b-q8 | 1.1441 | 23.60 | 562 |
+| fd-gemma4-31b | 1.6324 | 3.19 | 513 |
+| fd-gemma4-e4b | .0461 | 78.72 | 803 |
+| fd-ornith-35b | .6684 | 53.74 | 495 |
+| fd-ornith-9b | .0707 | 57.77 | 78 |
+| fd-qwen2.5-coder-14b | .0513 | 35.15 | 148 |
+| fd-qwen2.5-coder-32b | 1.5468 | 4.24 | 224 |
+| fd-qwen3-4b | .2341 | 28.99 | 474 |
+| fd-qwen3-coder-30b | .2191 | 42.41 | 207 |
+| fd-qwen3.5-27b | 1.4266 | 5.65 | 254 |
+| fd-qwen3.5-4b | .1419 | 86.16 | 1227 |
+| fd-qwen3.5-9b | .0971 | 55.84 | 454 |
+| fd-qwen3.6-35b | .5046 | 48.68 | 666 |
 
 ## Run 3
 | Model | TTFT (s) | Tokens/sec | Total Tokens |
 | :--- | :--- | :--- | :--- |
-| fd-gemma4-12b | .1166 | 40.39 | 393 |
-| fd-gemma4-26b | .5585 | 36.45 | 529 |
-| fd-gemma4-26b-q8 | 1.2614 | 21.59 | 453 |
-| fd-gemma4-31b | 1.5708 | 3.28 | 471 |
-| fd-gemma4-e4b | .0471 | 75.03 | 1016 |
-| fd-qwen2.5-coder-14b | .4877 | 13.57 | 147 |
-| fd-qwen2.5-coder-32b | 2.0755 | 3.78 | 281 |
-| fd-qwen3-4b | .2936 | 18.96 | 4344 |
-| fd-qwen3-coder-30b | .3498 | 36.14 | 180 |
-| fd-qwen3.5-27b | 2.0313 | 4.97 | 202 |
-| fd-qwen3.5-4b | .1343 | 79.88 | 8000 |
-| fd-qwen3.5-9b | .1037 | 53.64 | 1235 |
-| fd-qwen3.6-35b | .4840 | 36.31 | 1316 |
+| fd-flint-40b | .2816 | 56.09 | 313 |
+| fd-gemma4-12b | .1197 | 41.89 | 499 |
+| fd-gemma4-26b | .7562 | 41.99 | 669 |
+| fd-gemma4-26b-q8 | 5.5225 | 17.85 | 603 |
+| fd-gemma4-31b | 1.6344 | 3.15 | 594 |
+| fd-gemma4-e4b | .0445 | 79.40 | 1099 |
+| fd-ornith-35b | .6722 | 54.16 | 494 |
+| fd-ornith-9b | .0729 | 56.64 | 81 |
+| fd-qwen2.5-coder-14b | .0514 | 34.99 | 176 |
+| fd-qwen2.5-coder-32b | 1.5559 | 4.25 | 232 |
+| fd-qwen3-4b | .2307 | 21.85 | 3116 |
+| fd-qwen3-coder-30b | .2281 | 42.92 | 176 |
+| fd-qwen3.5-27b | 1.4432 | 5.64 | 257 |
+| fd-qwen3.5-4b | .1176 | 84.93 | 2955 |
+| fd-qwen3.5-9b | .1207 | 55.84 | 401 |
+| fd-qwen3.6-35b | .5104 | 46.31 | 1162 |
 
