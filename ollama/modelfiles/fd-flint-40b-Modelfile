@@ -1,4 +1,4 @@
-FROM flint:40b
+FROM hf.co/unsloth/flint-GGUF:UD-Q4_K_XL
 
 PARAMETER num_ctx 16384
 PARAMETER temperature 1.0
