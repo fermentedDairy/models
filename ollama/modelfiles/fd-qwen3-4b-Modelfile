@@ -1,10 +1,23 @@
 FROM qwen3:4b
 
-PARAMETER num_ctx 131072
-PARAMETER temperature 0.7
-PARAMETER top_p 0.8
-PARAMETER top_k 20
-PARAMETER presence_penalty 1.5
-PARAMETER repeat_penalty 1.0
+# Hardware & Stutter Prevention (Arc Pro B60 + SYCL)
+# Dropping num_ctx from 131072 to 16384 eliminates huge KV-cache attention scans on fast 4B layers
+PARAMETER num_ctx 16384
+PARAMETER num_batch 1024
+PARAMETER num_keep -1
 
-SYSTEM "You are a helpful coding assistant. /no_think"
+# Strict Sub-Agent Precision (Replaces chatty temperature=0.7 & harsh presence_penalty=1.5)
+PARAMETER temperature 0.1
+PARAMETER top_p 0.9
+PARAMETER top_k 40
+PARAMETER min_p 0.05
+
+# Gentle anti-looping without corrupting code syntax on small 4B models
+PARAMETER presence_penalty 0.1
+PARAMETER repeat_penalty 1.08
+PARAMETER repeat_last_n 256
+
+SYSTEM """You are a fast, concise coding assistant operating inside a terminal harness.
+- Follow tool-calling JSON schemas strictly and never invent parameters.
+- Keep responses brief, direct, and accurate.
+/no_think"""

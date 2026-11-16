@@ -1,6 +1,21 @@
 FROM gemma4:31b-it-qat
 
-PARAMETER num_ctx 128000
-PARAMETER temperature 1.0
-PARAMETER top_p 0.95
-PARAMETER top_k 64
+# Hardware & VRAM Tuning (Arc Pro B60 22.7 GiB usable + q8_0 KV Cache)
+# 31B QAT takes ~18.5–19.5 GB—16384 fits 100% GPU safely; 128000 will overflow to CPU RAM
+PARAMETER num_ctx 16384
+PARAMETER num_batch 512
+
+# Agentic Tool-Calling & Code Precision (Replaces creative temperature=1.0)
+PARAMETER temperature 0.2
+PARAMETER top_p 0.9
+PARAMETER top_k 40
+PARAMETER min_p 0.05
+
+# Prevent repetitive loops in tool calls without corrupting syntax
+PARAMETER repeat_penalty 1.05
+PARAMETER repeat_last_n 256
+
+SYSTEM """You are an expert software engineering agent operating inside a terminal harness.
+- Follow tool-calling JSON schemas strictly and never invent parameters.
+- Make minimal, surgical edits rather than rewriting entire files unless requested.
+- Verify changes and run relevant tests before concluding."""

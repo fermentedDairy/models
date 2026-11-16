@@ -1,7 +1,20 @@
 FROM gemma4:e4b
 
+# Hardware & Stutter Prevention (Arc Pro B60 + SYCL)
+# Reducing num_ctx from 65536 to 16384 eliminates sliding-window attention ring-buffer stalls
+PARAMETER num_ctx 16384
+PARAMETER num_batch 1024
 
-PARAMETER num_ctx 65536
-PARAMETER temperature 0.7
-PARAMETER top_p 0.95
-PARAMETER top_k 64
+# Crisp Sub-Agent & Coding Precision (Replaces chatty temperature=0.7)
+PARAMETER temperature 0.15
+PARAMETER top_p 0.9
+PARAMETER top_k 40
+PARAMETER min_p 0.05
+
+# Prevent repetitive phrasing loops on smaller 4B models
+PARAMETER repeat_penalty 1.08
+PARAMETER repeat_last_n 256
+
+SYSTEM """You are a fast, concise coding assistant operating inside a terminal harness.
+- Follow tool-calling JSON schemas strictly and never invent parameters.
+- Keep responses brief, direct, and accurate."""

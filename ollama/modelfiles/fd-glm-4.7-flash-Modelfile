@@ -1,0 +1,22 @@
+FROM glm-4.7-flash
+
+# Hardware & VRAM Tuning (Arc Pro B60 22.7 GiB usable + q8_0 KV Cache)
+# ~19 GB model footprint leaves ~3.7 GiB free—16384 fits 100% GPU safely without CPU spillover
+PARAMETER num_ctx 16384
+PARAMETER num_batch 512
+
+# GLM-4 Agentic Tool-Calling & Code Precision
+# GLM-4.7-Flash uses MLA (Multi-Head Latent Attention) and thrives at low temperature for strict JSON tool schemas
+PARAMETER temperature 0.15
+PARAMETER top_p 0.9
+PARAMETER top_k 40
+PARAMETER min_p 0.05
+
+# Prevent repetitive tool-call loops without disrupting code formatting
+PARAMETER repeat_penalty 1.05
+PARAMETER repeat_last_n 256
+
+SYSTEM """You are an expert software engineering agent operating inside a terminal harness.
+- Follow tool-calling JSON schemas strictly and never invent parameters.
+- Make minimal, surgical edits rather than rewriting entire files unless requested.
+- Verify changes and run relevant tests before concluding."""

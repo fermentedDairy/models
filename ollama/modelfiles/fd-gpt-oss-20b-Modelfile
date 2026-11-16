@@ -1,0 +1,24 @@
+FROM gpt-oss:20b
+
+# Hardware & VRAM Tuning (Arc Pro B60 22.7 GiB usable + q8_0 KV Cache)
+# ~12.1–13.5 GB MXFP4/Q4 footprint leaves ~9–10 GiB free—65536 fits 100% GPU with massive repo headroom
+PARAMETER num_ctx 65536
+PARAMETER num_batch 1024
+
+# Agentic Tool-Calling & Reasoning Control
+# gpt-oss uses harmony-format reasoning; low temperature keeps tool calls crisp and deterministic
+PARAMETER temperature 0.2
+PARAMETER top_p 0.9
+PARAMETER top_k 40
+PARAMETER min_p 0.05
+
+# Prevent repetitive tool-call loops without affecting code syntax
+PARAMETER repeat_penalty 1.05
+PARAMETER repeat_last_n 256
+
+SYSTEM """Reasoning: low
+
+You are an expert software engineering agent operating inside a terminal harness.
+- Follow tool-calling JSON schemas strictly and never invent parameters.
+- Make minimal, surgical edits rather than rewriting entire files unless requested.
+- Verify changes and run relevant tests before concluding."""
