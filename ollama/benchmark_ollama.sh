@@ -7,6 +7,11 @@
 # Create models if required
 . create_models.sh
 
+# Note on Jitter Calculation
+# Jitter is calculated as the difference between the maximum and minimum token rates
+# observed across the benchmark runs for each model.
+# This metric indicates the consistency of performance - lower jitter suggests more stable results.
+
 PROMPT="Write a short kotlin function that calculates the nth Fibonacci number. Use a recursive function without memoisation."
 OUTPUT_FILE="benchmark_results.md"
 
@@ -39,6 +44,10 @@ echo "| :--- |" >> "$OUTPUT_FILE"
 for MODEL in $MODELS; do
     echo "| $MODEL |" >> "$OUTPUT_FILE"
 done
+echo "" >> "$OUTPUT_FILE"
+
+# Note on Jitter Calculation
+echo "Jitter is calculated as the difference between the maximum and minimum token rates observed across the benchmark runs." >> "$OUTPUT_FILE"
 echo "" >> "$OUTPUT_FILE"
 
 for MODEL in $MODELS; do
