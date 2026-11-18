@@ -88,6 +88,18 @@ for MODEL in $MODELS; do
         EVAL_RATE=$(echo "$RESPONSE" | sed -n 's/^eval rate: *//p' | head -1)
         
         # Log raw values for debugging
+        echo "=== Raw Response for $MODEL Run $RUN ==="
+        echo "PROMPT_EVAL_DURATION: $PROMPT_EVAL_DURATION"
+        echo "EVAL_DURATION: $EVAL_DURATION"
+        echo "EVAL_COUNT: $EVAL_COUNT"
+        echo "PROMPT_EVAL_RATE: $PROMPT_EVAL_RATE"
+        echo "EVAL_RATE: $EVAL_RATE"
+        echo ""
+        echo "=== Full Response ==="
+        echo "$RESPONSE"
+        echo "==================================="
+        
+        # Also log to debug file
         echo "=== Raw Response for $MODEL Run $RUN ===" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
         echo "PROMPT_EVAL_DURATION: $PROMPT_EVAL_DURATION" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
         echo "EVAL_DURATION: $EVAL_DURATION" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
@@ -185,33 +197,20 @@ for MODEL in $MODELS; do
         printf "| Average | %s | %s | %s |\n" "$avg_ttft" "$avg_tokens_sec" "$avg_tokens" >> "$OUTPUT_FILE"
     fi
     
-    # Calculate jitter (difference between max and min tokens/sec across runs)
-    if [ ${#token_rates[@]} -ge 2 ]; then
-        # Sort token rates to find min and max
-        IFS=$'\n' sorted_rates=($(sort -n <<<"${token_rates[*]}"))
-        unset IFS
-        
-        min_rate=${sorted_rates[0]}
-        max_rate=${sorted_rates[-1]}
-        # Ensure we have valid numeric values before calculating
-        if [[ $min_rate =~ ^[0-9]*\.?[0-9]+$ ]] && [[ $max_rate =~ ^[0-9]*\.?[0-9]+$ ]]; then
-            jitter=$(echo "scale=2; $max_rate - $min_rate" | bc -l)
-            
-            echo "" >> "$OUTPUT_FILE"
-            echo "Jitter (max - min tokens/sec): $jitter" >> "$OUTPUT_FILE"
-            echo "Note: Jitter is calculated as the difference between the highest and lowest tokens/sec values across all runs for this model." >> "$OUTPUT_FILE"
-        fi
-    fi
-    
     echo "" >> "$OUTPUT_FILE"
 done
 
 # Calculate and display average results table at the end
 echo "## Average Results" >> "$OUTPUT_FILE"
-echo "| Model | Avg TTFT (s) | Avg Prompt Eval Rate (tokens/s) | Avg Eval Rate (tokens/s) | Avg Total Tokens |" >> "$OUTPUT_FILE"
-echo "| :--- | :--- | :--- | :--- | :--- |" >> "$OUTPUT_FILE"
+echo "| Model | Avg TTFT (s) | Avg Prompt Eval Rate (tokens/s) | Avg Eval Rate (tokens/s) | Avg Total Tokens | Jitter (tokens/s) |" >> "$OUTPUT_FILE"
+echo "| :--- | :--- | :--- | :--- | :--- | :--- |" >> "$OUTPUT_FILE"
 
-# Process the temporary results file to calculate averages by model
+# Add jitter calculation note before the results table
+echo "" >> "$OUTPUT_FILE"
+echo "Note: Jitter is calculated as the difference between the highest and lowest tokens/sec values across all runs for each model." >> "$OUTPUT_FILE"
+echo "" >> "$OUTPUT_FILE"
+
+# Process the temporary results file to calculate averages by model and include jitter
 awk -F',' '
 {
     model = $1
@@ -236,6 +235,23 @@ awk -F',' '
         }
         total_tokens[model] += tokens
         count_tokens[model]++
+        
+        # Store individual token rates for jitter calculation
+        if (!(model in run_count_rates)) {
+            run_count_rates[model] = 0
+        }
+        run_count_rates[model]++
+        
+        if (eval_rate != "N/A" && eval_rate ~ /^[0-9]*\.?[0-9]+$/) {
+            if (!(model in rate_array)) {
+                rate_array[model] = ""
+            }
+            if (rate_array[model] == "") {
+                rate_array[model] = eval_rate
+            } else {
+                rate_array[model] = rate_array[model] "," eval_rate
+            }
+        }
     }
 }
 END {
@@ -244,7 +260,24 @@ END {
         avg_prompt_rate = total_prompt_rate[model] / count_prompt_rate[model]
         avg_eval_rate = total_eval_rate[model] / count_eval_rate[model]
         avg_tokens = total_tokens[model] / count_tokens[model]
-        printf "| %s | %.4f | %.2f | %.2f | %.0f |\n", model, avg_ttft, avg_prompt_rate, avg_eval_rate, avg_tokens
+        
+        # Calculate jitter - difference between max and min token rates
+        jitter = 0
+        if (rate_array[model] != "") {
+            # Split the rates and find min/max
+            n = split(rate_array[model], rates, ",")
+            if (n > 1) {
+                min_rate = rates[1]
+                max_rate = rates[1]
+                for (i = 2; i <= n; i++) {
+                    if (rates[i] < min_rate) min_rate = rates[i]
+                    if (rates[i] > max_rate) max_rate = rates[i]
+                }
+                jitter = max_rate - min_rate
+            }
+        }
+        
+        printf "| %s | %.4f | %.2f | %.2f | %.0f | %.2f |\n", model, avg_ttft, avg_prompt_rate, avg_eval_rate, avg_tokens, jitter
     }
 }' "$TEMP_RESULTS" >> "$OUTPUT_FILE"
 
