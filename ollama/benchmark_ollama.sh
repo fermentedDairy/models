@@ -65,11 +65,12 @@ for MODEL in $MODELS; do
     total_ttft=0
     total_tokens_sec=0
     total_tokens=0
+    total_prompt_rate=0
     run_count=0
     token_rates=()
     
     # Add table header for individual model runs
-    echo "| Run | Prompt Eval Time (s) | Prompt Eval Rate (tokens/s) | Eval Rate (tokens/s) | Total Tokens |" >> "$OUTPUT_FILE"
+    echo "| Run | Prompt Eval Time (s) | Prompt Eval Rate (tokens/s) | Eval Rate (tokens/s) | Total Tokens (tokens) |" >> "$OUTPUT_FILE"
     echo "| :--- | :--- | :--- | :--- | :--- |" >> "$OUTPUT_FILE"
     
     # Run 3 times to get average and jitter
@@ -159,6 +160,10 @@ for MODEL in $MODELS; do
         # Store results for averaging and jitter calculation
         if [[ ! -z "$PROMPT_EVAL_DURATION" ]]; then
             total_ttft=$(echo "$total_ttft + $TTFT" | bc -l 2>/dev/null)
+            # Also accumulate prompt rate for average calculation
+            if [[ "$PROMPT_RATE" != "N/A" ]] && [[ $PROMPT_RATE =~ ^[0-9]*\.?[0-9]+$ ]]; then
+                total_prompt_rate=$(echo "$total_prompt_rate + $PROMPT_RATE" | bc -l 2>/dev/null)
+            fi
             run_count=$((run_count + 1))
         fi
         
@@ -185,16 +190,18 @@ for MODEL in $MODELS; do
     # Calculate averages for this model
     if [ $run_count -gt 0 ]; then
         avg_ttft=$(echo "scale=4; $total_ttft / $run_count" | bc -l 2>/dev/null)
+        avg_prompt_rate=$(echo "scale=2; $total_prompt_rate / $run_count" | bc -l 2>/dev/null)
         avg_tokens_sec=$(echo "scale=2; $total_tokens_sec / $run_count" | bc -l 2>/dev/null)
         avg_tokens=$(echo "scale=0; $total_tokens / $run_count" | bc -l 2>/dev/null)
         
         # If bc failed, set to N/A
         if [[ -z "$avg_ttft" ]]; then avg_ttft="N/A"; fi
+        if [[ -z "$avg_prompt_rate" ]]; then avg_prompt_rate="N/A"; fi
         if [[ -z "$avg_tokens_sec" ]]; then avg_tokens_sec="N/A"; fi
         if [[ -z "$avg_tokens" ]]; then avg_tokens="N/A"; fi
         
         # Add average row to output file
-        printf "| Average | %s | %s | %s |\n" "$avg_ttft" "$avg_tokens_sec" "$avg_tokens" >> "$OUTPUT_FILE"
+        printf "| Average | %s | %s | %s | %s |\n" "$avg_ttft" "$avg_prompt_rate" "$avg_tokens_sec" "$avg_tokens" >> "$OUTPUT_FILE"
         
         # Calculate jitter (difference between max and min token rates)
         if [ ${#token_rates[@]} -ge 2 ]; then
