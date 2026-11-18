@@ -50,11 +50,12 @@ for MODEL in $MODELS; do
     echo "| Run | TTFT (s) | Tokens/sec | Total Tokens |" >> "$OUTPUT_FILE"
     echo "| :--- | :--- | :--- | :--- |" >> "$OUTPUT_FILE"
     
-    # Initialize variables for averaging
+    # Initialize variables for averaging and jitter calculation
     total_ttft=0
     total_tokens_sec=0
     total_tokens=0
     run_count=0
+    token_rates=()
     
     for RUN in 1 2 3; do
         echo "" > "benchmark/responses_run${RUN}.txt"
@@ -87,6 +88,9 @@ for MODEL in $MODELS; do
             # Calculate tokens/sec from eval rate or calculate manually
             if [[ ! -z "$PROMPT_EVAL_RATE" ]]; then
                 TOKEN_RATE="$PROMPT_EVAL_RATE"
+                # Extract numeric value from rate (e.g., "54.59 tokens/s" -> 54.59)
+                TOKEN_RATE_NUM=$(echo "$TOKEN_RATE" | sed 's/ tokens\/s//')
+                TOKEN_RATE="$TOKEN_RATE_NUM"
             else
                 # Manual calculation if rate not available
                 EVAL_COUNT_NUM=$(echo "$EVAL_COUNT" | sed 's/ token(s)//')
@@ -109,7 +113,7 @@ for MODEL in $MODELS; do
         echo "$RESPONSE" | grep -v "prompt eval duration:" | grep -v "eval duration:" | grep -v "eval count:" | grep -v "prompt eval rate:" | grep -v "total duration:" | grep -v "load duration:" > "benchmark/responses_run${RUN}.txt"
         echo "" >> "benchmark/responses_run${RUN}.txt"
 
-        # Store results for averaging
+        # Store results for averaging and jitter calculation
         if [[ ! -z "$PROMPT_EVAL_DURATION" ]]; then
             total_ttft=$(echo "$total_ttft + $TTFT" | bc -l)
             run_count=$((run_count + 1))
@@ -118,6 +122,7 @@ for MODEL in $MODELS; do
         if [[ ! -z "$EVAL_COUNT" && ! -z "$EVAL_DURATION" ]]; then
             total_tokens_sec=$(echo "$total_tokens_sec + $TOKEN_RATE" | bc -l)
             total_tokens=$(echo "$total_tokens + $EVAL_COUNT" | bc -l)
+            token_rates+=("$TOKEN_RATE")
         fi
         
         # Add to temporary results file for final average calculation
@@ -132,6 +137,21 @@ for MODEL in $MODELS; do
         
         # Add average row to output file
         printf "| Average | %s | %s | %s |\n" "$avg_ttft" "$avg_tokens_sec" "$avg_tokens" >> "$OUTPUT_FILE"
+    fi
+    
+    # Calculate jitter (difference between max and min tokens/sec across runs)
+    if [ ${#token_rates[@]} -ge 2 ]; then
+        # Sort token rates to find min and max
+        IFS=$'\n' sorted_rates=($(sort -n <<<"${token_rates[*]}"))
+        unset IFS
+        
+        min_rate=${sorted_rates[0]}
+        max_rate=${sorted_rates[-1]}
+        jitter=$(echo "scale=2; $max_rate - $min_rate" | bc -l)
+        
+        echo "" >> "$OUTPUT_FILE"
+        echo "Jitter (max - min tokens/sec): $jitter" >> "$OUTPUT_FILE"
+        echo "Note: Jitter is calculated as the difference between the highest and lowest tokens/sec values across all runs for this model." >> "$OUTPUT_FILE"
     fi
     
     echo "" >> "$OUTPUT_FILE"
