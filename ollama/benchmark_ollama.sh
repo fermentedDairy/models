@@ -67,6 +67,18 @@ for MODEL in $MODELS; do
 
         # Run the prompt and capture metrics via Ollama CLI
         RESPONSE=$(ollama run "$MODEL" "$PROMPT" --verbose 2>&1)
+        
+        # Check if we got a valid response
+        if [ -z "$RESPONSE" ]; then
+            echo "Warning: Empty response from ollama run for $MODEL (Run $RUN)" >&2
+            TTFT="N/A"
+            TOKEN_RATE="N/A"
+            PROMPT_RATE="N/A"
+            EVAL_RATE_VAL="N/A"
+            EVAL_COUNT="N/A"
+            # Continue to next run instead of failing completely
+            continue
+        fi
 
         # Extract durations and token count from the response
         PROMPT_EVAL_DURATION=$(echo "$RESPONSE" | grep "prompt eval duration:" | awk '{print $4}')
@@ -74,6 +86,18 @@ for MODEL in $MODELS; do
         EVAL_COUNT=$(echo "$RESPONSE" | grep "eval count:" | awk '{print $4}')
         PROMPT_EVAL_RATE=$(echo "$RESPONSE" | grep "prompt eval rate:" | awk '{print $4}')
         EVAL_RATE=$(echo "$RESPONSE" | grep "eval rate:" | awk '{print $4}')
+        
+         # Log raw values for debugging
+        echo "=== Raw Response for $MODEL Run $RUN ===" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
+        echo "PROMPT_EVAL_DURATION: $PROMPT_EVAL_DURATION" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
+        echo "EVAL_DURATION: $EVAL_DURATION" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
+        echo "EVAL_COUNT: $EVAL_COUNT" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
+        echo "PROMPT_EVAL_RATE: $PROMPT_EVAL_RATE" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
+        echo "EVAL_RATE: $EVAL_RATE" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
+        echo "" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
+        echo "=== Full Response ===" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
+        echo "$RESPONSE" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
+        echo "===================================" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
         
         # Convert durations to seconds if they exist
         TTFT="N/A"
@@ -126,14 +150,17 @@ for MODEL in $MODELS; do
         # Append to Markdown table
         printf "| %s | %s | %s | %s | %s |\n" "$RUN" "$TTFT" "$PROMPT_RATE" "$EVAL_RATE_VAL" "$EVAL_COUNT" >> "$OUTPUT_FILE"
 
-        # Save raw response as pretty JSON in a benchmark folder named after the model and run
-        mkdir -p "benchmark/$MODEL"
-        echo "$RESPONSE" > "benchmark/$MODEL/response_run${RUN}.txt"
-
-        # Extract and format response to run-specific file
-        echo "$MODEL" >> "benchmark/responses_run${RUN}.txt"
-        echo "$RESPONSE" | grep -v "prompt eval duration:" | grep -v "eval duration:" | grep -v "eval count:" | grep -v "prompt eval rate:" | grep -v "total duration:" | grep -v "load duration:" > "benchmark/responses_run${RUN}.txt"
-        echo "" >> "benchmark/responses_run${RUN}.txt"
+        # Log raw values for debugging
+        echo "=== Raw Response for $MODEL Run $RUN ===" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
+        echo "PROMPT_EVAL_DURATION: $PROMPT_EVAL_DURATION" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
+        echo "EVAL_DURATION: $EVAL_DURATION" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
+        echo "EVAL_COUNT: $EVAL_COUNT" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
+        echo "PROMPT_EVAL_RATE: $PROMPT_EVAL_RATE" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
+        echo "EVAL_RATE: $EVAL_RATE" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
+        echo "" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
+        echo "=== Full Response ===" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
+        echo "$RESPONSE" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
+        echo "===================================" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
 
         # Store results for averaging and jitter calculation
         if [[ ! -z "$PROMPT_EVAL_DURATION" ]]; then
