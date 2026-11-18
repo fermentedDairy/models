@@ -31,55 +31,37 @@ echo "- GPU: $(lspci | grep -i 'VGA\|3D' | cut -d ':' -f3- | sed 's/^ *//')" >> 
 echo "" >> "$OUTPUT_FILE"
 echo "Prompt: *\"$PROMPT\"*" >> "$OUTPUT_FILE"
 echo "" >> "$OUTPUT_FILE"
-echo "### Models Benchmarked" >> "$OUTPUT_FILE"
+
+# List of models being benchmarked
+echo "## Models Benchmarked" >> "$OUTPUT_FILE"
+echo "| Model | Description |" >> "$OUTPUT_FILE"
+echo "| :--- | :--- |" >> "$OUTPUT_FILE"
 for MODEL in $MODELS; do
-    echo "- $MODEL" >> "$OUTPUT_FILE"
+    echo "| $MODEL | " >> "$OUTPUT_FILE"
 done
 echo "" >> "$OUTPUT_FILE"
 
-echo "Starting benchmark... Saving results to $OUTPUT_FILE"
-
-# Create a temporary file to store all results for calculating averages
-TEMP_RESULTS=$(mktemp)
-
-# Initialize the temporary results file
-> "$TEMP_RESULTS"
-
 for MODEL in $MODELS; do
-    echo "$MODEL:" >> "$OUTPUT_FILE"
-    echo "| Run | Prompt Eval Time (s) | Prompt Eval Rate (tokens/s) | Eval Rate (tokens/s) | Total Tokens |" >> "$OUTPUT_FILE"
-    echo "| :--- | :--- | :--- | :--- | :--- |" >> "$OUTPUT_FILE"
+    echo "Running benchmark for model: $MODEL" >&2
     
-    # Initialize variables for averaging and jitter calculation
+    # Create a temporary results file for this model
+    TEMP_RESULTS="/tmp/benchmark_results_$MODEL.csv"
+    rm -f "$TEMP_RESULTS"
+    
+    # Initialize variables for averaging
     total_ttft=0
     total_tokens_sec=0
     total_tokens=0
     run_count=0
     token_rates=()
     
+    # Run 3 times to get average and jitter
     for RUN in 1 2 3; do
-        echo "" > "benchmark/responses_run${RUN}.txt"
+        echo "=== Running $MODEL Run $RUN ===" >&2
         
-        echo "Benchmarking $MODEL (Run $RUN)..."
+        # Run the model with verbose output
+        RESPONSE=$(ollama run --verbose "$MODEL" "$PROMPT" 2>&1)
         
-        # Warmup call - this makes sure the model is running and loaded before running the benchmark task
-        ollama run "$MODEL" "Say Hello" --verbose > /dev/null 2>&1
-
-        # Run the prompt and capture metrics via Ollama CLI
-        RESPONSE=$(ollama run "$MODEL" "$PROMPT" --verbose 2>&1)
-        
-        # Check if we got a valid response
-        if [ -z "$RESPONSE" ]; then
-            echo "Warning: Empty response from ollama run for $MODEL (Run $RUN)" >&2
-            TTFT="N/A"
-            TOKEN_RATE="N/A"
-            PROMPT_RATE="N/A"
-            EVAL_RATE_VAL="N/A"
-            EVAL_COUNT="N/A"
-            # Continue to next run instead of failing completely
-            continue
-        fi
-
         # Extract durations and token count from the response using precise patterns
         PROMPT_EVAL_DURATION=$(echo "$RESPONSE" | sed -n 's/^prompt eval duration: *//p' | head -1)
         EVAL_DURATION=$(echo "$RESPONSE" | sed -n 's/^eval duration: *//p' | head -1)
@@ -92,40 +74,28 @@ for MODEL in $MODELS; do
         echo "DEBUG: PROMPT_EVAL_RATE extracted as '$PROMPT_EVAL_RATE'" >&2
         echo "DEBUG: EVAL_RATE extracted as '$EVAL_RATE'" >&2
         
-        # Log raw values for debugging
-        echo "=== Raw Response for $MODEL Run $RUN ==="
-        echo "PROMPT_EVAL_DURATION: $PROMPT_EVAL_DURATION"
-        echo "EVAL_DURATION: $EVAL_DURATION"
-        echo "EVAL_COUNT: $EVAL_COUNT"
-        echo "PROMPT_EVAL_RATE: $PROMPT_EVAL_RATE"
-        echo "EVAL_RATE: $EVAL_RATE"
-        echo ""
-        echo "=== Full Response ==="
-        echo "$RESPONSE"
-        echo "==================================="
-        
-        # Also log to debug file
-        echo "=== Raw Response for $MODEL Run $RUN ===" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
-        echo "PROMPT_EVAL_DURATION: $PROMPT_EVAL_DURATION" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
-        echo "EVAL_DURATION: $EVAL_DURATION" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
-        echo "EVAL_COUNT: $EVAL_COUNT" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
-        echo "PROMPT_EVAL_RATE: $PROMPT_EVAL_RATE" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
-        echo "EVAL_RATE: $EVAL_RATE" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
-        echo "" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
-        echo "=== Full Response ===" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
-        echo "$RESPONSE" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
-        echo "===================================" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
-        
-        # Convert durations to seconds if they exist
+        # Convert prompt eval duration to seconds if it's in milliseconds
         TTFT="N/A"
-        PROMPT_RATE="N/A"
-        EVAL_RATE_VAL="N/A"
-        TOKEN_RATE="N/A"
-        
         if [[ ! -z "$PROMPT_EVAL_DURATION" ]]; then
-            # Parse duration (e.g., "1.520398s")
-            TTFT_NUM=$(echo "$PROMPT_EVAL_DURATION" | sed 's/s//')
-            TTFT=$(echo "scale=4; $TTFT_NUM" | bc -l)
+            if [[ "$PROMPT_EVAL_DURATION" =~ ^[0-9.]+ms$ ]]; then
+                # Convert milliseconds to seconds
+                TTFT_NUM=$(echo "$PROMPT_EVAL_DURATION" | sed 's/ms//')
+                TTFT=$(echo "scale=6; $TTFT_NUM / 1000" | bc -l 2>/dev/null)
+            elif [[ "$PROMPT_EVAL_DURATION" =~ ^[0-9.]+s$ ]]; then
+                # Already in seconds
+                TTFT=$(echo "$PROMPT_EVAL_DURATION" | sed 's/s//')
+            else
+                # Assume it's already a number in seconds or invalid format
+                TTFT="$PROMPT_EVAL_DURATION"
+            fi
+            
+            # Validate that we got a valid number for TTFT
+            if [[ $TTFT =~ ^[0-9]*\.?[0-9]+$ ]] && [[ ! -z "$TTFT" ]]; then
+                echo "DEBUG: Converted TTFT to '$TTFT' seconds" >&2
+            else
+                TTFT="N/A"
+                echo "DEBUG: Invalid TTFT value '$PROMPT_EVAL_DURATION', setting to N/A" >&2
+            fi
         fi
         
         # Handle prompt evaluation rate
@@ -171,7 +141,7 @@ for MODEL in $MODELS; do
 
         # Store results for averaging and jitter calculation
         if [[ ! -z "$PROMPT_EVAL_DURATION" ]]; then
-            total_ttft=$(echo "$total_ttft + $TTFT" | bc -l)
+            total_ttft=$(echo "$total_ttft + $TTFT" | bc -l 2>/dev/null)
             run_count=$((run_count + 1))
         fi
         
@@ -195,21 +165,21 @@ for MODEL in $MODELS; do
         echo "$MODEL,$RUN,$TTFT,$PROMPT_RATE,$EVAL_RATE_VAL,$EVAL_COUNT" >> "$TEMP_RESULTS"
     done
     
-        # Calculate averages for this model
-        if [ $run_count -gt 0 ]; then
-            avg_ttft=$(echo "scale=4; $total_ttft / $run_count" | bc -l 2>/dev/null)
-            avg_tokens_sec=$(echo "scale=2; $total_tokens_sec / $run_count" | bc -l 2>/dev/null)
-            avg_tokens=$(echo "scale=0; $total_tokens / $run_count" | bc -l 2>/dev/null)
-            
-            # If bc failed, set to N/A
-            if [[ -z "$avg_ttft" ]]; then avg_ttft="N/A"; fi
-            if [[ -z "$avg_tokens_sec" ]]; then avg_tokens_sec="N/A"; fi
-            if [[ -z "$avg_tokens" ]]; then avg_tokens="N/A"; fi
-            
-            # Add average row to output file
-            printf "| Average | %s | %s | %s |\n" "$avg_ttft" "$avg_tokens_sec" "$avg_tokens" >> "$OUTPUT_FILE"
-        fi
-    
+    # Calculate averages for this model
+    if [ $run_count -gt 0 ]; then
+        avg_ttft=$(echo "scale=4; $total_ttft / $run_count" | bc -l 2>/dev/null)
+        avg_tokens_sec=$(echo "scale=2; $total_tokens_sec / $run_count" | bc -l 2>/dev/null)
+        avg_tokens=$(echo "scale=0; $total_tokens / $run_count" | bc -l 2>/dev/null)
+        
+        # If bc failed, set to N/A
+        if [[ -z "$avg_ttft" ]]; then avg_ttft="N/A"; fi
+        if [[ -z "$avg_tokens_sec" ]]; then avg_tokens_sec="N/A"; fi
+        if [[ -z "$avg_tokens" ]]; then avg_tokens="N/A"; fi
+        
+        # Add average row to output file
+        printf "| Average | %s | %s | %s |\n" "$avg_ttft" "$avg_tokens_sec" "$avg_tokens" >> "$OUTPUT_FILE"
+    fi
+
     echo "" >> "$OUTPUT_FILE"
 done
 
@@ -295,6 +265,6 @@ END {
 }' "$TEMP_RESULTS" >> "$OUTPUT_FILE"
 
 # Clean up temporary file
-rm "$TEMP_RESULTS"
+rm -f "$TEMP_RESULTS"
 
-echo "Benchmark complete."
+echo "Benchmark completed. Results saved to $OUTPUT_FILE"
