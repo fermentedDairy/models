@@ -186,6 +186,30 @@ for MODEL in $MODELS; do
         
         # Add average row to output file
         printf "| Average | %s | %s | %s |\n" "$avg_ttft" "$avg_tokens_sec" "$avg_tokens" >> "$OUTPUT_FILE"
+        
+        # Calculate jitter (difference between max and min token rates)
+        if [ ${#token_rates[@]} -ge 2 ]; then
+            # Sort token rates
+            IFS=$'\n' sorted_rates=($(sort -n <<<"${token_rates[*]}"))
+            unset IFS
+            
+            # Get min and max values
+            min_rate="${sorted_rates[0]}"
+            max_rate="${sorted_rates[-1]}"
+            
+            # Calculate jitter
+            jitter=$(echo "scale=2; $max_rate - $min_rate" | bc -l 2>/dev/null)
+            
+            # Add jitter information to the output
+            echo "" >> "$OUTPUT_FILE"
+            echo "#### Performance Metrics" >> "$OUTPUT_FILE"
+            echo "| Metric | Value |" >> "$OUTPUT_FILE"
+            echo "| :--- | :--- |" >> "$OUTPUT_FILE"
+            echo "| Min Token Rate (tokens/s) | $min_rate |" >> "$OUTPUT_FILE"
+            echo "| Max Token Rate (tokens/s) | $max_rate |" >> "$OUTPUT_FILE"
+            echo "| Jitter (tokens/s) | $jitter |" >> "$OUTPUT_FILE"
+            echo "" >> "$OUTPUT_FILE"
+        fi
     fi
 
     echo "" >> "$OUTPUT_FILE"
