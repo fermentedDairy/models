@@ -80,14 +80,14 @@ for MODEL in $MODELS; do
             continue
         fi
 
-        # Extract durations and token count from the response
-        PROMPT_EVAL_DURATION=$(echo "$RESPONSE" | grep "prompt eval duration:" | awk '{print $4}')
-        EVAL_DURATION=$(echo "$RESPONSE" | grep "eval duration:" | awk '{print $4}')
-        EVAL_COUNT=$(echo "$RESPONSE" | grep "eval count:" | awk '{print $4}')
-        PROMPT_EVAL_RATE=$(echo "$RESPONSE" | grep "prompt eval rate:" | awk '{print $4}')
-        EVAL_RATE=$(echo "$RESPONSE" | grep "eval rate:" | awk '{print $4}')
+        # Extract durations and token count from the response using precise patterns
+        PROMPT_EVAL_DURATION=$(echo "$RESPONSE" | sed -n 's/^prompt eval duration: *//p' | head -1)
+        EVAL_DURATION=$(echo "$RESPONSE" | sed -n 's/^eval duration: *//p' | head -1)
+        EVAL_COUNT=$(echo "$RESPONSE" | sed -n 's/^eval count: *//p' | head -1)
+        PROMPT_EVAL_RATE=$(echo "$RESPONSE" | sed -n 's/^prompt eval rate: *//p' | head -1)
+        EVAL_RATE=$(echo "$RESPONSE" | sed -n 's/^eval rate: *//p' | head -1)
         
-         # Log raw values for debugging
+        # Log raw values for debugging
         echo "=== Raw Response for $MODEL Run $RUN ===" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
         echo "PROMPT_EVAL_DURATION: $PROMPT_EVAL_DURATION" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
         echo "EVAL_DURATION: $EVAL_DURATION" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
@@ -149,18 +149,6 @@ for MODEL in $MODELS; do
 
         # Append to Markdown table
         printf "| %s | %s | %s | %s | %s |\n" "$RUN" "$TTFT" "$PROMPT_RATE" "$EVAL_RATE_VAL" "$EVAL_COUNT" >> "$OUTPUT_FILE"
-
-        # Log raw values for debugging
-        echo "=== Raw Response for $MODEL Run $RUN ===" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
-        echo "PROMPT_EVAL_DURATION: $PROMPT_EVAL_DURATION" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
-        echo "EVAL_DURATION: $EVAL_DURATION" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
-        echo "EVAL_COUNT: $EVAL_COUNT" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
-        echo "PROMPT_EVAL_RATE: $PROMPT_EVAL_RATE" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
-        echo "EVAL_RATE: $EVAL_RATE" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
-        echo "" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
-        echo "=== Full Response ===" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
-        echo "$RESPONSE" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
-        echo "===================================" >> "benchmark/$MODEL/response_run${RUN}_debug.txt"
 
         # Store results for averaging and jitter calculation
         if [[ ! -z "$PROMPT_EVAL_DURATION" ]]; then
