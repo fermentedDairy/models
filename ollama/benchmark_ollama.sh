@@ -13,9 +13,6 @@ OUTPUT_FILE="benchmark_results.md"
 # Ensure we have the list of models
 MODELS=$(ls modelfiles/*Modelfile | sed 's|modelfiles/||;s/-Modelfile//')
 
-OLLAMA_HOST="${FD_OLLAMA_SERVER:-localhost}"
-OLLAMA_URL="http://$OLLAMA_HOST:11434/api/generate"
-
 mkdir -p benchmark
 
 if [ -z "$MODELS" ]; then
@@ -65,35 +62,39 @@ for MODEL in $MODELS; do
         echo "Benchmarking $MODEL (Run $RUN)..."
         
         # Warmup call - this makes sure the model is running and loaded before running the benchmark task
-        curl -s -X POST "$OLLAMA_URL" -d "{
-          \"model\": \"$MODEL\",
-          \"prompt\": \"Say Hello\",
-          \"stream\": false
-        }" > /dev/null 2>&1
+        ollama run "$MODEL" "Say Hello" --verbose > /dev/null 2>&1
 
-        # Run the prompt and capture metrics via Ollama API
-        RESPONSE=$(curl -s -X POST "$OLLAMA_URL" -d "{
-          \"model\": \"$MODEL\",
-          \"prompt\": \"$PROMPT\",
-          \"stream\": false
-        }")
+        # Run the prompt and capture metrics via Ollama CLI
+        RESPONSE=$(ollama run "$MODEL" "$PROMPT" --verbose 2>&1)
 
-        # Extract durations (in nanoseconds) and token count using jq
-        PROMPT_EVAL_NS=$(echo "$RESPONSE" | jq -r '.prompt_eval_duration // 0')
-        EVAL_NS=$(echo "$RESPONSE" | jq -r '.eval_duration // 0')
-        EVAL_COUNT=$(echo "$RESPONSE" | jq -r '.eval_count // 0')
-
-        # Convert nanoseconds to seconds and calculate metrics
-        if [[ "$PROMPT_EVAL_NS" -gt 0 ]]; then
-            TTFT=$(echo "scale=4; $PROMPT_EVAL_NS / 1000000000" | bc -l)
-        else
-            TTFT="N/A"
+        # Extract durations and token count from the response
+        PROMPT_EVAL_DURATION=$(echo "$RESPONSE" | grep "prompt eval duration:" | awk '{print $4}')
+        EVAL_DURATION=$(echo "$RESPONSE" | grep "eval duration:" | awk '{print $4}')
+        EVAL_COUNT=$(echo "$RESPONSE" | grep "eval count:" | awk '{print $4}')
+        PROMPT_EVAL_RATE=$(echo "$RESPONSE" | grep "prompt eval rate:" | awk '{print $4}')
+        
+        # Convert durations to seconds if they exist
+        TTFT="N/A"
+        TOKEN_RATE="N/A"
+        
+        if [[ ! -z "$PROMPT_EVAL_DURATION" ]]; then
+            # Parse duration (e.g., "1.520398s")
+            TTFT_NUM=$(echo "$PROMPT_EVAL_DURATION" | sed 's/s//')
+            TTFT=$(echo "scale=4; $TTFT_NUM" | bc -l)
         fi
-
-        if [[ "$EVAL_NS" -gt 0 && "$EVAL_COUNT" -gt 0 ]]; then
-            TOKEN_RATE=$(echo "scale=2; $EVAL_COUNT / ($EVAL_NS / 1000000000)" | bc -l)
-        else
-            TOKEN_RATE="N/A"
+        
+        if [[ ! -z "$EVAL_DURATION" && ! -z "$EVAL_COUNT" ]]; then
+            # Calculate tokens/sec from eval rate or calculate manually
+            if [[ ! -z "$PROMPT_EVAL_RATE" ]]; then
+                TOKEN_RATE="$PROMPT_EVAL_RATE"
+            else
+                # Manual calculation if rate not available
+                EVAL_COUNT_NUM=$(echo "$EVAL_COUNT" | sed 's/ token(s)//')
+                EVAL_DURATION_NUM=$(echo "$EVAL_DURATION" | sed 's/s//')
+                if (( $(echo "$EVAL_DURATION_NUM > 0" | bc -l) )); then
+                    TOKEN_RATE=$(echo "scale=2; $EVAL_COUNT_NUM / $EVAL_DURATION_NUM" | bc -l)
+                fi
+            fi
         fi
 
         # Append to Markdown table
@@ -101,20 +102,20 @@ for MODEL in $MODELS; do
 
         # Save raw response as pretty JSON in a benchmark folder named after the model and run
         mkdir -p "benchmark/$MODEL"
-        echo "$RESPONSE" | jq . > "benchmark/$MODEL/response_run${RUN}.json"
+        echo "$RESPONSE" > "benchmark/$MODEL/response_run${RUN}.txt"
 
         # Extract and format response to run-specific file
         echo "$MODEL" >> "benchmark/responses_run${RUN}.txt"
-        echo "$RESPONSE" | jq -r '.response // empty' >> "benchmark/responses_run${RUN}.txt"
+        echo "$RESPONSE" | grep -v "prompt eval duration:" | grep -v "eval duration:" | grep -v "eval count:" | grep -v "prompt eval rate:" | grep -v "total duration:" | grep -v "load duration:" > "benchmark/responses_run${RUN}.txt"
         echo "" >> "benchmark/responses_run${RUN}.txt"
 
         # Store results for averaging
-        if [[ "$PROMPT_EVAL_NS" -gt 0 ]]; then
+        if [[ ! -z "$PROMPT_EVAL_DURATION" ]]; then
             total_ttft=$(echo "$total_ttft + $TTFT" | bc -l)
             run_count=$((run_count + 1))
         fi
         
-        if [[ "$EVAL_NS" -gt 0 && "$EVAL_COUNT" -gt 0 ]]; then
+        if [[ ! -z "$EVAL_COUNT" && ! -z "$EVAL_DURATION" ]]; then
             total_tokens_sec=$(echo "$total_tokens_sec + $TOKEN_RATE" | bc -l)
             total_tokens=$(echo "$total_tokens + $EVAL_COUNT" | bc -l)
         fi
