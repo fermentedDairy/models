@@ -34,15 +34,19 @@ echo "" >> "$OUTPUT_FILE"
 
 # List of models being benchmarked
 echo "## Models Benchmarked" >> "$OUTPUT_FILE"
-echo "| Model | Description |" >> "$OUTPUT_FILE"
-echo "| :--- | :--- |" >> "$OUTPUT_FILE"
+echo "| Model |" >> "$OUTPUT_FILE"
+echo "| :--- |" >> "$OUTPUT_FILE"
 for MODEL in $MODELS; do
-    echo "| $MODEL | " >> "$OUTPUT_FILE"
+    echo "| $MODEL |" >> "$OUTPUT_FILE"
 done
 echo "" >> "$OUTPUT_FILE"
 
 for MODEL in $MODELS; do
     echo "Running benchmark for model: $MODEL" >&2
+    
+    # Add model header
+    echo "### $MODEL" >> "$OUTPUT_FILE"
+    echo "" >> "$OUTPUT_FILE"
     
     # Create a temporary results file for this model
     TEMP_RESULTS="/tmp/benchmark_results_$MODEL.csv"
@@ -54,6 +58,10 @@ for MODEL in $MODELS; do
     total_tokens=0
     run_count=0
     token_rates=()
+    
+    # Add table header for individual model runs
+    echo "| Run | Prompt Eval Time (s) | Prompt Eval Rate (tokens/s) | Eval Rate (tokens/s) | Total Tokens |" >> "$OUTPUT_FILE"
+    echo "| :--- | :--- | :--- | :--- | :--- |" >> "$OUTPUT_FILE"
     
     # Run 3 times to get average and jitter
     for RUN in 1 2 3; do
@@ -182,89 +190,3 @@ for MODEL in $MODELS; do
 
     echo "" >> "$OUTPUT_FILE"
 done
-
-# Calculate and display average results table at the end
-echo "## Average Results" >> "$OUTPUT_FILE"
-echo "| Model | Avg Prompt Eval Time (s) | Avg Prompt Eval Rate (tokens/s) | Avg Eval Rate (tokens/s) | Avg Total Tokens | Jitter (tokens/s) |" >> "$OUTPUT_FILE"
-echo "| :--- | :--- | :--- | :--- | :--- | :--- |" >> "$OUTPUT_FILE"
-
-# Add jitter calculation note before the results table
-echo "" >> "$OUTPUT_FILE"
-echo "Note: Jitter is calculated as the difference between the highest and lowest tokens/sec values across all runs for each model." >> "$OUTPUT_FILE"
-echo "" >> "$OUTPUT_FILE"
-
-# Process the temporary results file to calculate averages by model and include jitter
-awk -F',' '
-{
-    model = $1
-    ttft = $3
-    prompt_rate = $4
-    eval_rate = $5
-    tokens = $6
-    
-    # Skip header line if it exists
-    if (model != "Model") {
-        if (ttft != "N/A" && ttft ~ /^[0-9]*\.?[0-9]+$/) {
-            total_ttft[model] += ttft
-            count_ttft[model]++
-        }
-        if (prompt_rate != "N/A" && prompt_rate ~ /^[0-9]*\.?[0-9]+$/) {
-            total_prompt_rate[model] += prompt_rate
-            count_prompt_rate[model]++
-        }
-        if (eval_rate != "N/A" && eval_rate ~ /^[0-9]*\.?[0-9]+$/) {
-            total_eval_rate[model] += eval_rate
-            count_eval_rate[model]++
-        }
-        total_tokens[model] += tokens
-        count_tokens[model]++
-        
-        # Store individual token rates for jitter calculation
-        if (!(model in run_count_rates)) {
-            run_count_rates[model] = 0
-        }
-        run_count_rates[model]++
-        
-        if (eval_rate != "N/A" && eval_rate ~ /^[0-9]*\.?[0-9]+$/) {
-            if (!(model in rate_array)) {
-                rate_array[model] = ""
-            }
-            if (rate_array[model] == "") {
-                rate_array[model] = eval_rate
-            } else {
-                rate_array[model] = rate_array[model] "," eval_rate
-            }
-        }
-    }
-}
-END {
-    for (model in total_ttft) {
-        avg_ttft = total_ttft[model] / count_ttft[model]
-        avg_prompt_rate = total_prompt_rate[model] / count_prompt_rate[model]
-        avg_eval_rate = total_eval_rate[model] / count_eval_rate[model]
-        avg_tokens = total_tokens[model] / count_tokens[model]
-        
-        # Calculate jitter - difference between max and min token rates
-        jitter = 0
-        if (rate_array[model] != "") {
-            # Split the rates and find min/max
-            n = split(rate_array[model], rates, ",")
-            if (n > 1) {
-                min_rate = rates[1]
-                max_rate = rates[1]
-                for (i = 2; i <= n; i++) {
-                    if (rates[i] < min_rate) min_rate = rates[i]
-                    if (rates[i] > max_rate) max_rate = rates[i]
-                }
-                jitter = max_rate - min_rate
-            }
-        }
-        
-        printf "| %s | %.4f | %.2f | %.2f | %.0f | %.2f |\n", model, avg_ttft, avg_prompt_rate, avg_eval_rate, avg_tokens, jitter
-    }
-}' "$TEMP_RESULTS" >> "$OUTPUT_FILE"
-
-# Clean up temporary file
-rm -f "$TEMP_RESULTS"
-
-echo "Benchmark completed. Results saved to $OUTPUT_FILE"
