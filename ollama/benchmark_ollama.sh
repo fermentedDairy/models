@@ -47,7 +47,7 @@ TEMP_RESULTS=$(mktemp)
 
 for MODEL in $MODELS; do
     echo "$MODEL:" >> "$OUTPUT_FILE"
-    echo "| Run | TTFT (s) | Prompt Eval Rate (tokens/s) | Eval Rate (tokens/s) | Total Tokens |" >> "$OUTPUT_FILE"
+    echo "| Run | Prompt Eval Time (s) | Prompt Eval Rate (tokens/s) | Eval Rate (tokens/s) | Total Tokens |" >> "$OUTPUT_FILE"
     echo "| :--- | :--- | :--- | :--- | :--- |" >> "$OUTPUT_FILE"
     
     # Initialize variables for averaging and jitter calculation
@@ -88,6 +88,7 @@ for MODEL in $MODELS; do
         EVAL_RATE=$(echo "$RESPONSE" | sed -n 's/^eval rate: *//p' | head -1)
         
         # Debug output for raw values
+        echo "DEBUG: PROMPT_EVAL_DURATION extracted as '$PROMPT_EVAL_DURATION'" >&2
         echo "DEBUG: PROMPT_EVAL_RATE extracted as '$PROMPT_EVAL_RATE'" >&2
         echo "DEBUG: EVAL_RATE extracted as '$EVAL_RATE'" >&2
         
@@ -190,6 +191,7 @@ for MODEL in $MODELS; do
         fi
         
         # Add to temporary results file for final average calculation
+        # Format: Model,Run,PromptEvalTime,PromptRate,EvalRate,Tokens
         echo "$MODEL,$RUN,$TTFT,$PROMPT_RATE,$EVAL_RATE_VAL,$EVAL_COUNT" >> "$TEMP_RESULTS"
     done
     
@@ -213,7 +215,7 @@ done
 
 # Calculate and display average results table at the end
 echo "## Average Results" >> "$OUTPUT_FILE"
-echo "| Model | Avg TTFT (s) | Avg Prompt Eval Rate (tokens/s) | Avg Eval Rate (tokens/s) | Avg Total Tokens | Jitter (tokens/s) |" >> "$OUTPUT_FILE"
+echo "| Model | Avg Prompt Eval Time (s) | Avg Prompt Eval Rate (tokens/s) | Avg Eval Rate (tokens/s) | Avg Total Tokens | Jitter (tokens/s) |" >> "$OUTPUT_FILE"
 echo "| :--- | :--- | :--- | :--- | :--- | :--- |" >> "$OUTPUT_FILE"
 
 # Add jitter calculation note before the results table
