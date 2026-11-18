@@ -47,8 +47,8 @@ TEMP_RESULTS=$(mktemp)
 
 for MODEL in $MODELS; do
     echo "$MODEL:" >> "$OUTPUT_FILE"
-    echo "| Run | TTFT (s) | Tokens/sec | Total Tokens |" >> "$OUTPUT_FILE"
-    echo "| :--- | :--- | :--- | :--- |" >> "$OUTPUT_FILE"
+    echo "| Run | TTFT (s) | Prompt Eval Rate (tokens/s) | Eval Rate (tokens/s) | Total Tokens |" >> "$OUTPUT_FILE"
+    echo "| :--- | :--- | :--- | :--- | :--- |" >> "$OUTPUT_FILE"
     
     # Initialize variables for averaging and jitter calculation
     total_ttft=0
@@ -73,9 +73,12 @@ for MODEL in $MODELS; do
         EVAL_DURATION=$(echo "$RESPONSE" | grep "eval duration:" | awk '{print $4}')
         EVAL_COUNT=$(echo "$RESPONSE" | grep "eval count:" | awk '{print $4}')
         PROMPT_EVAL_RATE=$(echo "$RESPONSE" | grep "prompt eval rate:" | awk '{print $4}')
+        EVAL_RATE=$(echo "$RESPONSE" | grep "eval rate:" | awk '{print $4}')
         
         # Convert durations to seconds if they exist
         TTFT="N/A"
+        PROMPT_RATE="N/A"
+        EVAL_RATE_VAL="N/A"
         TOKEN_RATE="N/A"
         
         if [[ ! -z "$PROMPT_EVAL_DURATION" ]]; then
@@ -84,30 +87,44 @@ for MODEL in $MODELS; do
             TTFT=$(echo "scale=4; $TTFT_NUM" | bc -l)
         fi
         
-        if [[ ! -z "$EVAL_DURATION" && ! -z "$EVAL_COUNT" ]]; then
-            # Calculate tokens/sec from eval rate or calculate manually
-            if [[ ! -z "$PROMPT_EVAL_RATE" ]]; then
-                TOKEN_RATE="$PROMPT_EVAL_RATE"
-                # Extract numeric value from rate (e.g., "54.59 tokens/s" -> 54.59)
-                TOKEN_RATE_NUM=$(echo "$TOKEN_RATE" | sed 's/ tokens\/s//')
-                # Validate that we got a valid number
-                if [[ $TOKEN_RATE_NUM =~ ^[0-9]*\.?[0-9]+$ ]]; then
-                    TOKEN_RATE="$TOKEN_RATE_NUM"
-                else
-                    TOKEN_RATE="N/A"
-                fi
+        # Handle prompt evaluation rate
+        if [[ ! -z "$PROMPT_EVAL_RATE" ]]; then
+            # Extract numeric value from rate (e.g., "54.59 tokens/s" -> 54.59)
+            PROMPT_RATE_NUM=$(echo "$PROMPT_EVAL_RATE" | sed 's/ tokens\/s//')
+            # Validate that we got a valid number
+            if [[ $PROMPT_RATE_NUM =~ ^[0-9]*\.?[0-9]+$ ]]; then
+                PROMPT_RATE="$PROMPT_RATE_NUM"
             else
-                # Manual calculation if rate not available
-                EVAL_COUNT_NUM=$(echo "$EVAL_COUNT" | sed 's/ token(s)//' | sed 's/[^0-9.]//g')
-                EVAL_DURATION_NUM=$(echo "$EVAL_DURATION" | sed 's/s//')
-                if (( $(echo "$EVAL_DURATION_NUM > 0" | bc -l) )) && [[ $EVAL_COUNT_NUM =~ ^[0-9]*\.?[0-9]+$ ]]; then
-                    TOKEN_RATE=$(echo "scale=2; $EVAL_COUNT_NUM / $EVAL_DURATION_NUM" | bc -l)
-                fi
+                PROMPT_RATE="N/A"
+            fi
+        fi
+        
+        # Handle eval rate (output tokens/sec)
+        if [[ ! -z "$EVAL_RATE" ]]; then
+            # Extract numeric value from rate (e.g., "224.68 tokens/s" -> 224.68)
+            EVAL_RATE_NUM=$(echo "$EVAL_RATE" | sed 's/ tokens\/s//')
+            # Validate that we got a valid number
+            if [[ $EVAL_RATE_NUM =~ ^[0-9]*\.?[0-9]+$ ]]; then
+                EVAL_RATE_VAL="$EVAL_RATE_NUM"
+                TOKEN_RATE="$EVAL_RATE_NUM"
+            else
+                EVAL_RATE_VAL="N/A"
+                TOKEN_RATE="N/A"
+            fi
+        fi
+        
+        # If eval rate is not available, calculate it manually
+        if [[ -z "$EVAL_RATE" && ! -z "$EVAL_DURATION" && ! -z "$EVAL_COUNT" ]]; then
+            EVAL_COUNT_NUM=$(echo "$EVAL_COUNT" | sed 's/ token(s)//' | sed 's/[^0-9.]//g')
+            EVAL_DURATION_NUM=$(echo "$EVAL_DURATION" | sed 's/s//')
+            if (( $(echo "$EVAL_DURATION_NUM > 0" | bc -l) )) && [[ $EVAL_COUNT_NUM =~ ^[0-9]*\.?[0-9]+$ ]]; then
+                TOKEN_RATE=$(echo "scale=2; $EVAL_COUNT_NUM / $EVAL_DURATION_NUM" | bc -l)
+                EVAL_RATE_VAL="$TOKEN_RATE"
             fi
         fi
 
         # Append to Markdown table
-        printf "| %s | %s | %s | %s |\n" "$RUN" "$TTFT" "$TOKEN_RATE" "$EVAL_COUNT" >> "$OUTPUT_FILE"
+        printf "| %s | %s | %s | %s | %s |\n" "$RUN" "$TTFT" "$PROMPT_RATE" "$EVAL_RATE_VAL" "$EVAL_COUNT" >> "$OUTPUT_FILE"
 
         # Save raw response as pretty JSON in a benchmark folder named after the model and run
         mkdir -p "benchmark/$MODEL"
@@ -124,9 +141,15 @@ for MODEL in $MODELS; do
             run_count=$((run_count + 1))
         fi
         
+        # Only process token rates if they're valid numbers
         if [[ ! -z "$EVAL_COUNT" && ! -z "$EVAL_DURATION" ]]; then
-            # Validate TOKEN_RATE before using in calculations
-            if [[ "$TOKEN_RATE" != "N/A" ]] && [[ $TOKEN_RATE =~ ^[0-9]*\.?[0-9]+$ ]]; then
+            # Check if we have a valid eval rate value
+            if [[ "$EVAL_RATE_VAL" != "N/A" ]] && [[ $EVAL_RATE_VAL =~ ^[0-9]*\.?[0-9]+$ ]]; then
+                total_tokens_sec=$(echo "$total_tokens_sec + $EVAL_RATE_VAL" | bc -l)
+                total_tokens=$(echo "$total_tokens + $EVAL_COUNT" | bc -l)
+                token_rates+=("$EVAL_RATE_VAL")
+            elif [[ "$TOKEN_RATE" != "N/A" ]] && [[ $TOKEN_RATE =~ ^[0-9]*\.?[0-9]+$ ]]; then
+                # Use manual calculation if available
                 total_tokens_sec=$(echo "$total_tokens_sec + $TOKEN_RATE" | bc -l)
                 total_tokens=$(echo "$total_tokens + $EVAL_COUNT" | bc -l)
                 token_rates+=("$TOKEN_RATE")
@@ -134,7 +157,7 @@ for MODEL in $MODELS; do
         fi
         
         # Add to temporary results file for final average calculation
-        echo "$MODEL,$RUN,$TTFT,$TOKEN_RATE,$EVAL_COUNT" >> "$TEMP_RESULTS"
+        echo "$MODEL,$RUN,$TTFT,$PROMPT_RATE,$EVAL_RATE_VAL,$EVAL_COUNT" >> "$TEMP_RESULTS"
     done
     
     # Calculate averages for this model
@@ -155,11 +178,14 @@ for MODEL in $MODELS; do
         
         min_rate=${sorted_rates[0]}
         max_rate=${sorted_rates[-1]}
-        jitter=$(echo "scale=2; $max_rate - $min_rate" | bc -l)
-        
-        echo "" >> "$OUTPUT_FILE"
-        echo "Jitter (max - min tokens/sec): $jitter" >> "$OUTPUT_FILE"
-        echo "Note: Jitter is calculated as the difference between the highest and lowest tokens/sec values across all runs for this model." >> "$OUTPUT_FILE"
+        # Ensure we have valid numeric values before calculating
+        if [[ $min_rate =~ ^[0-9]*\.?[0-9]+$ ]] && [[ $max_rate =~ ^[0-9]*\.?[0-9]+$ ]]; then
+            jitter=$(echo "scale=2; $max_rate - $min_rate" | bc -l)
+            
+            echo "" >> "$OUTPUT_FILE"
+            echo "Jitter (max - min tokens/sec): $jitter" >> "$OUTPUT_FILE"
+            echo "Note: Jitter is calculated as the difference between the highest and lowest tokens/sec values across all runs for this model." >> "$OUTPUT_FILE"
+        fi
     fi
     
     echo "" >> "$OUTPUT_FILE"
@@ -167,16 +193,17 @@ done
 
 # Calculate and display average results table at the end
 echo "## Average Results" >> "$OUTPUT_FILE"
-echo "| Model | Avg TTFT (s) | Avg Tokens/sec | Avg Total Tokens |" >> "$OUTPUT_FILE"
-echo "| :--- | :--- | :--- | :--- |" >> "$OUTPUT_FILE"
+echo "| Model | Avg TTFT (s) | Avg Prompt Eval Rate (tokens/s) | Avg Eval Rate (tokens/s) | Avg Total Tokens |" >> "$OUTPUT_FILE"
+echo "| :--- | :--- | :--- | :--- | :--- |" >> "$OUTPUT_FILE"
 
 # Process the temporary results file to calculate averages by model
 awk -F',' '
 {
     model = $1
     ttft = $3
-    tokens_sec = $4
-    tokens = $5
+    prompt_rate = $4
+    eval_rate = $5
+    tokens = $6
     
     # Skip header line if it exists
     if (model != "Model") {
@@ -184,9 +211,13 @@ awk -F',' '
             total_ttft[model] += ttft
             count_ttft[model]++
         }
-        if (tokens_sec != "N/A") {
-            total_tokens_sec[model] += tokens_sec
-            count_tokens_sec[model]++
+        if (prompt_rate != "N/A" && prompt_rate ~ /^[0-9]*\.?[0-9]+$/) {
+            total_prompt_rate[model] += prompt_rate
+            count_prompt_rate[model]++
+        }
+        if (eval_rate != "N/A" && eval_rate ~ /^[0-9]*\.?[0-9]+$/) {
+            total_eval_rate[model] += eval_rate
+            count_eval_rate[model]++
         }
         total_tokens[model] += tokens
         count_tokens[model]++
@@ -195,9 +226,10 @@ awk -F',' '
 END {
     for (model in total_ttft) {
         avg_ttft = total_ttft[model] / count_ttft[model]
-        avg_tokens_sec = total_tokens_sec[model] / count_tokens_sec[model]
+        avg_prompt_rate = total_prompt_rate[model] / count_prompt_rate[model]
+        avg_eval_rate = total_eval_rate[model] / count_eval_rate[model]
         avg_tokens = total_tokens[model] / count_tokens[model]
-        printf "| %s | %.4f | %.2f | %.0f |\n", model, avg_ttft, avg_tokens_sec, avg_tokens
+        printf "| %s | %.4f | %.2f | %.2f | %.0f |\n", model, avg_ttft, avg_prompt_rate, avg_eval_rate, avg_tokens
     }
 }' "$TEMP_RESULTS" >> "$OUTPUT_FILE"
 
