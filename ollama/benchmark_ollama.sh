@@ -90,12 +90,17 @@ for MODEL in $MODELS; do
                 TOKEN_RATE="$PROMPT_EVAL_RATE"
                 # Extract numeric value from rate (e.g., "54.59 tokens/s" -> 54.59)
                 TOKEN_RATE_NUM=$(echo "$TOKEN_RATE" | sed 's/ tokens\/s//')
-                TOKEN_RATE="$TOKEN_RATE_NUM"
+                # Validate that we got a valid number
+                if [[ $TOKEN_RATE_NUM =~ ^[0-9]*\.?[0-9]+$ ]]; then
+                    TOKEN_RATE="$TOKEN_RATE_NUM"
+                else
+                    TOKEN_RATE="N/A"
+                fi
             else
                 # Manual calculation if rate not available
-                EVAL_COUNT_NUM=$(echo "$EVAL_COUNT" | sed 's/ token(s)//')
+                EVAL_COUNT_NUM=$(echo "$EVAL_COUNT" | sed 's/ token(s)//' | sed 's/[^0-9.]//g')
                 EVAL_DURATION_NUM=$(echo "$EVAL_DURATION" | sed 's/s//')
-                if (( $(echo "$EVAL_DURATION_NUM > 0" | bc -l) )); then
+                if (( $(echo "$EVAL_DURATION_NUM > 0" | bc -l) )) && [[ $EVAL_COUNT_NUM =~ ^[0-9]*\.?[0-9]+$ ]]; then
                     TOKEN_RATE=$(echo "scale=2; $EVAL_COUNT_NUM / $EVAL_DURATION_NUM" | bc -l)
                 fi
             fi
@@ -120,9 +125,12 @@ for MODEL in $MODELS; do
         fi
         
         if [[ ! -z "$EVAL_COUNT" && ! -z "$EVAL_DURATION" ]]; then
-            total_tokens_sec=$(echo "$total_tokens_sec + $TOKEN_RATE" | bc -l)
-            total_tokens=$(echo "$total_tokens + $EVAL_COUNT" | bc -l)
-            token_rates+=("$TOKEN_RATE")
+            # Validate TOKEN_RATE before using in calculations
+            if [[ "$TOKEN_RATE" != "N/A" ]] && [[ $TOKEN_RATE =~ ^[0-9]*\.?[0-9]+$ ]]; then
+                total_tokens_sec=$(echo "$total_tokens_sec + $TOKEN_RATE" | bc -l)
+                total_tokens=$(echo "$total_tokens + $EVAL_COUNT" | bc -l)
+                token_rates+=("$TOKEN_RATE")
+            fi
         fi
         
         # Add to temporary results file for final average calculation
