@@ -60,7 +60,9 @@ for MODEL in $MODELS; do
     echo "### $MODEL" >> "$OUTPUT_FILE"
     echo "" >> "$OUTPUT_FILE"
 
-
+    echo "#### Model Statistics" >> "$OUTPUT_FILE"
+    echo "" >> "$OUTPUT_FILE"
+    
     # Show running models with their details
     echo "\`\`\`" >> "$OUTPUT_FILE"
     ollama ps >> "$OUTPUT_FILE"
