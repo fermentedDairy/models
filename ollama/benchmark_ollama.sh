@@ -34,6 +34,7 @@ echo "- RAM: $(free -h | awk '/^Mem:/ {print $2}')" >> "$OUTPUT_FILE"
 echo "- OS: $(uname -sr)" >> "$OUTPUT_FILE"
 echo "- GPU: $(lspci | grep -i 'VGA\|3D' | cut -d ':' -f3- | sed 's/^ *//')" >> "$OUTPUT_FILE"
 echo "" >> "$OUTPUT_FILE"
+
 echo "Prompt: *\"$PROMPT\"*" >> "$OUTPUT_FILE"
 echo "" >> "$OUTPUT_FILE"
 
@@ -52,9 +53,18 @@ echo "" >> "$OUTPUT_FILE"
 
 for MODEL in $MODELS; do
     echo "Running benchmark for model: $MODEL" >&2
+
+    ollama run "$MODEL" "Say Hello" >/dev/null 2>&1
     
     # Add model header
     echo "### $MODEL" >> "$OUTPUT_FILE"
+    echo "" >> "$OUTPUT_FILE"
+
+
+    # Show running models with their details
+    echo "\`\`\`" >> "$OUTPUT_FILE"
+    ollama ps >> "$OUTPUT_FILE"
+    echo "\`\`\`" >> "$OUTPUT_FILE"
     echo "" >> "$OUTPUT_FILE"
     
     # Create a temporary results file for this model
@@ -154,6 +164,9 @@ for MODEL in $MODELS; do
             fi
         fi
 
+        # Extract numeric value from token count for proper averaging
+        EVAL_COUNT_NUM=$(echo "$EVAL_COUNT" | sed 's/ token(s)//' | sed 's/[^0-9.]//g')
+
         # Append to Markdown table
         printf "| %s | %s | %s | %s | %s |\n" "$RUN" "$TTFT" "$PROMPT_RATE" "$EVAL_RATE_VAL" "$EVAL_COUNT" >> "$OUTPUT_FILE"
 
@@ -172,12 +185,12 @@ for MODEL in $MODELS; do
             # Check if we have a valid eval rate value
             if [[ "$EVAL_RATE_VAL" != "N/A" ]] && [[ $EVAL_RATE_VAL =~ ^[0-9]*\.?[0-9]+$ ]]; then
                 total_tokens_sec=$(echo "$total_tokens_sec + $EVAL_RATE_VAL" | bc -l 2>/dev/null)
-                total_tokens=$(echo "$total_tokens + $EVAL_COUNT" | bc -l 2>/dev/null)
+                total_tokens=$(echo "$total_tokens + $EVAL_COUNT_NUM" | bc -l 2>/dev/null)
                 token_rates+=("$EVAL_RATE_VAL")
             elif [[ "$TOKEN_RATE" != "N/A" ]] && [[ $TOKEN_RATE =~ ^[0-9]*\.?[0-9]+$ ]]; then
                 # Use manual calculation if available
                 total_tokens_sec=$(echo "$total_tokens_sec + $TOKEN_RATE" | bc -l 2>/dev/null)
-                total_tokens=$(echo "$total_tokens + $EVAL_COUNT" | bc -l 2>/dev/null)
+                total_tokens=$(echo "$total_tokens + $EVAL_COUNT_NUM" | bc -l 2>/dev/null)
                 token_rates+=("$TOKEN_RATE")
             fi
         fi
