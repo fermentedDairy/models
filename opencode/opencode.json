@@ -1,44 +1,142 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "model": "ollama_smart/fd-qwen3-coder-30b",
+  "small_model": "ollama_dumb/small-gemma4-e4b",
+  "lsp": {
+    "kotlin-lsp": {
+      "command": [
+        "kotlin-lsp",
+        "--stdio"
+      ],
+      "extensions": [
+        ".kt",
+        ".kts"
+      ]
+    },
+    "jdtls": {
+      "command": [
+        "jdtls"
+      ],
+      "extensions": [
+        ".java"
+      ]
+    },
+    "bash-ls": {
+      "command": [
+        "bash-language-server",
+        "start"
+      ],
+      "extensions": [
+        ".sh",
+        ".bash",
+        ".zsh"
+      ]
+    }
+  },  
   "provider": {
-    "ollama": {
+    "ollama_smart": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "Ollama (smarty pants)",
       "options": {
-        "baseURL": "http://ed-smarty-pants:11434/v1"
+        "baseURL": "http://ed-smarty-pants:11434/v1",
+        "apiKey": "ollama",
+        "timeout": false
       },
       "models": {
-        "fd-gemma4-e4b": {
-          "name": "gemma4 E4B (local customisation)"
-        },
-        "fd-gemma4-26b": {
-          "name": "gemma4 26b A4B (local customisation)"
-        },
-        "fd-qwen3-4b": {
-          "name": "qwen3 4B (local customisation)"
-        },
-        "fd-qwen3.5-4b": {
-          "name": "qwen3.5 4B (local customisation)"
-        },
-        "fd-qwen3.5-9b": {
-          "name": "qwen3.5 9B (local customisation)"
-        },
-        "fd-qwen3.5-27b": {
-          "name": "qwen3.5 27B (local customisation)"
-        },
         "fd-qwen3-coder-30b": {
-          "name": "qwen3 Coder 30B (local customisation)"
+          "name": "Qwen3 Coder 30B (Daily Driver • 78 t/s)",
+          "tool_call": true,
+          "limit": {
+            "context": 32768,
+            "output": 8192
+          }
         },
-        "fd-qwen3.6-35b": {
-          "name": "qwen3.6 35B (local customisation)"
+        "fd-agents-A1-35B": {
+          "name": "Agents-A1 35B-A3B (Tool Specialist • 72 t/s)",
+          "tool_call": true,
+          "limit": {
+            "context": 16384,
+            "output": 8192
+          }
         },
-        "fd-ornith1.5-9b": {
-          "name": "ornith1.5 35B (local customisation)"
+        "fd-ornith1.5-35b": {
+          "name": "Ornith 1.5 35B-A3B (Agentic • 71 t/s)",
+          "tool_call": true,
+          "limit": {
+            "context": 16384,
+            "output": 8192
+          }
+        },
+        "fd-gpt-oss-20b": {
+          "name": "GPT-OSS 20B (64K Context • 68 t/s)",
+          "tool_call": true,
+          "limit": {
+            "context": 65536,
+            "output": 8192
+          }
+        },
+        "fd-devstral-small-2-24b": {
+          "name": "Devstral Small 2 24B (Heavy Refactor • 64K)",
+          "tool_call": true,
+          "limit": {
+            "context": 65536,
+            "output": 8192
+          }
         },
         "fd-ornith-35b": {
-          "name": "ornith1.5 35B (local customisation)"
+          "name": "Ornith 1 35B (8K Context • 72 t/s)",
+          "tool_call": true,
+          "limit": {
+            "context": 8192,
+            "output": 4096
+          }
+        },
+        "fd-gemma4-12b": {
+          "name": "Gemma 4 12B (Dense • 41 t/s)",
+          "tool_call": true,
+          "limit": {
+            "context": 32768,
+            "output": 8192
+          }
+        },
+        "fd-qwen3.5-9b": {
+          "name": "Qwen 3.5 9B (Fast • 57 t/s)",
+          "tool_call": true,
+          "limit": {
+            "context": 32768,
+            "output": 8192
+          }
+        }
+      }
+    },
+    "ollama_dumb": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama (dumb dumb)",
+      "options": {
+        "baseURL": "http://dumb-dumb:11434/v1",
+        "apiKey": "ollama"
+      },
+      "models": {
+        "small-gemma4-e4b": {
+          "name": "Gemma 4 E4B (Sub-Agent)",
+          "tool_call": true,
+          "limit": {
+            "context": 16384,
+            "output": 4096
+          }
         }
       }
     }
-  }
+  },
+  "permission": {
+    "skill": {
+      "caveman": "allow",
+      "*": "deny"
+    },
+    "question": "allow",
+    "lsp": "allow"
+  },
+  "instructions": [
+    "CRITICAL: The current year is 2026. Do not append '2024' or any other outdated years to search queries, Exa tool parameters, or user prompts. Always search using the true current year or leave temporal keywords out of the query unless explicitly requested by the user."
+  ]
 }
