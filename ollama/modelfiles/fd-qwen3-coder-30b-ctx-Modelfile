@@ -1,8 +1,7 @@
 FROM qwen3-coder:30b
 
-# Hardware & VRAM Tuning (Arc Pro B60 22.7 GiB usable + q8_0 KV Cache)
-# 30B-A3B MoE takes ~17.5–18.5 GB, leaving ~4–5 GiB free—32768 fits 100% GPU cleanly
-PARAMETER num_ctx 49152
+# Benchmarking show this works fine with prompts that fill up the context (token pre second downgrade but I think that's fine) 
+PARAMETER num_ctx 81920
 PARAMETER num_batch 1024
 PARAMETER num_keep -1
 
