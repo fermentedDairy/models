@@ -16,7 +16,14 @@ PROMPT="Write a short kotlin function that calculates the nth Fibonacci number. 
 OUTPUT_FILE="benchmark_results.md"
 
 # Ensure we have the list of models
-MODELS=$(ls modelfiles/*Modelfile | sed 's|modelfiles/||;s/-Modelfile//')
+ALL_MODELS=$(ls modelfiles/*Modelfile | sed 's|modelfiles/||;s/-Modelfile//')
+
+# If models are passed as arguments, use those; otherwise, use all models
+if [ $# -eq 0 ]; then
+    MODELS="$ALL_MODELS"
+else
+    MODELS="$*"
+fi
 
 mkdir -p benchmark
 
