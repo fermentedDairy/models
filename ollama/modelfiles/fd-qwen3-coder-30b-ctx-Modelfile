@@ -2,7 +2,7 @@ FROM qwen3-coder:30b
 
 # Benchmarking show this works fine with prompts that fill up the context (token pre second downgrade but I think that's fine) 
 PARAMETER num_ctx 81920
-PARAMETER num_batch 1024
+PARAMETER num_batch 512
 PARAMETER num_keep -1
 
 # Qwen3-Coder Agentic Tool-Calling & Diff Precision
