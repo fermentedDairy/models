@@ -12,7 +12,16 @@
 # observed across the benchmark runs for each model.
 # This metric indicates the consistency of performance - lower jitter suggests more stable results.
 
-PROMPT="Write a short kotlin function that calculates the nth Fibonacci number. Use a recursive function without memoisation."
+# Check if largePrompt flag is set
+if [[ "$1" == "--largePrompt" ]]; then
+    # Fetch prompt from prompt.txt file
+    PROMPT=$(cat prompt.txt)
+    echo "Using prompt from prompt.txt"
+    shift  # Remove the flag from arguments
+else
+    PROMPT="Write a short kotlin function that calculates the nth Fibonacci number. Use a recursive function without memoisation."
+fi
+
 OUTPUT_FILE="benchmark_results.md"
 
 # Ensure we have the list of models
