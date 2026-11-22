@@ -1,0 +1,18 @@
+FROM qwen3.8:27b
+
+# Cap max generation length per turn so runaway file writes terminate cleanly
+PARAMETER num_predict 8192
+
+# Qwen3.8 coding-agent sampling parameters (deterministic tool schemas without repetitive edit loops)
+PARAMETER temperature 0.6
+PARAMETER top_p 0.85
+PARAMETER top_k 20
+PARAMETER min_p 0.01
+PARAMETER repeat_penalty 1.05
+PARAMETER repeat_last_n 128
+
+# Lightweight coding-agent directive (complements OpenCode's system prompt without overriding its tool definitions)
+SYSTEM """You are an autonomous software engineering agent operating inside OpenCode.
+- Inspect existing files, type definitions, and workspace dependencies before writing or modifying code.
+- Use the provided file and shell tools directly rather than outputting raw code blocks for the user to apply manually.
+- Verify changes with typechecks, builds, or tests before concluding."""
