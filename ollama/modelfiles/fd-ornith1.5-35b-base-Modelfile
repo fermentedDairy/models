@@ -2,9 +2,6 @@
 # (The default library tag 'ornith-1.5:35b' omits the 'tools' capability and bundles a 1.3 GB vision projector)
 FROM hf.co/ornith-ai/Ornith-1.5-35B-A3B-GGUF:Q4_K_M
 
-# Hardware & VRAM Tuning (Arc Pro B60 22.7 GiB usable + q8_0 KV Cache)
-# Text-only Q4_K_M takes ~21.7 GB (vs 23 GB with vision)—keep num_ctx at 16384 and num_batch at 512 to stay 100% GPU
-PARAMETER num_ctx 16384
 PARAMETER num_batch 512
 PARAMETER num_keep -1
 

@@ -4,8 +4,11 @@
 # Measures Time to First Token (TTFT) and Token Rate (tokens/sec)
 # Saves results to a Markdown file
 
-# Create models if required
-. create_models.sh
+# Check if models are passed as arguments
+if [ $# -eq 0 ]; then
+    # Create models if required (no models provided as arguments)
+    . create_models.sh
+fi
 
 # Note on Jitter Calculation
 # Jitter is calculated as the difference between the maximum and minimum token rates

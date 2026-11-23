@@ -1,0 +1,3 @@
+FROM fd-ornith1.5-35b-base
+
+PARAMETER num_ctx 131072

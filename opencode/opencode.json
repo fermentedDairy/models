@@ -1,7 +1,8 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "ollama_smart/fd-qwen3-coder-30b-ctx",
+  "model": "ollama_smart/fd-ornith1.5-35b",
   "small_model": "ollama_dumb/small-gemma4-e4b",
+  "plugins": ["/home/edward-cheesman/opencode-v2-lsp-support"],
   "lsp": {
     "kotlin-lsp": {
       "command": [
@@ -52,15 +53,14 @@
   "provider": {
     "ollama_smart": {
       "npm": "@ai-sdk/openai-compatible",
-      "name": "Ollama (smarty pants)",
+      "name": "Ollama (smarty pants backup)",
       "options": {
         "baseURL": "http://ed-smarty-pants:11434/v1",
-        "apiKey": "ollama",
-        "timeout": false
+        "apiKey": "ollama"
       },
       "models": {
         "fd-qwen3-coder-30b": {
-          "name": "Qwen3 Coder 30B (Daily Driver • Low Context • 78 t/s)",
+          "name": "Qwen3 Coder 30B (Fall Back • Low Context)",
           "tool_call": true,
           "limit": {
             "context": 32768,
@@ -68,10 +68,26 @@
           }
         },
         "fd-qwen3-coder-30b-ctx": {
-          "name": "Qwen3 Coder 30B (Daily Driver • High Context 33 t/s)",
+          "name": "Qwen3 Coder 30B (Fall Back • High Context 33 t/s)",
           "tool_call": true,
           "limit": {
             "context": 81920,
+            "output": 8192
+          }
+        },
+        "fd-qwen3.8-27b-smallC": {
+          "name": "Qwen3.8 27B (Newer Frameworks • Low Context)",
+          "tool_call": true,
+          "limit": {
+            "context": 32768,
+            "output": 8192
+          }
+        },
+        "fd-qwen3.8-27b-bigC": {
+          "name": "Qwen3.8 27B (Newer Frameworks • High Context)",
+          "tool_call": true,
+          "limit": {
+            "context": 98304,
             "output": 8192
           }
         },
@@ -83,11 +99,19 @@
             "output": 8192
           }
         },
-        "fd-ornith1.5-35b": {
+        "fd-ornith1.5-35b-smallC": {
           "name": "Ornith 1.5 35B-A3B (Agentic • 71 t/s)",
           "tool_call": true,
           "limit": {
             "context": 16384,
+            "output": 8192
+          }
+        },
+        "fd-ornith1.5-35b-bigC": {
+          "name": "Ornith 1.5 35B-A3B (Agentic • 71 t/s)",
+          "tool_call": true,
+          "limit": {
+            "context": 131072,
             "output": 8192
           }
         },
