@@ -17,7 +17,7 @@ if [[ -f "$TARGET_LIB" ]]; then
 fi
 
 echo "=== 2. Running official Ollama installer ==="
-curl -fsSL https://ollama.com | sh
+curl -fsSL https://ollama.com/install.sh | sh
 
 NEW_VER=$(ollama --version | awk '{print $NF}')
 echo "Updated Ollama: $OLD_VER -> $NEW_VER"
