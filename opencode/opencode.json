@@ -1,8 +1,10 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "ollama_smart/fd-ornith1.5-35b",
+  "model": "ollama_smart/fd-ornith1.5-35b-bigC",
   "small_model": "ollama_dumb/small-gemma4-e4b",
-  "plugins": ["/home/edward-cheesman/opencode-v2-lsp-support"],
+  "plugins": [
+    "/home/edward-cheesman/opencode-v2-lsp-support"
+  ],
   "lsp": {
     "kotlin-lsp": {
       "command": [
@@ -49,7 +51,7 @@
         ".cts"
       ]
     }
-  },  
+  },
   "provider": {
     "ollama_smart": {
       "npm": "@ai-sdk/openai-compatible",
@@ -68,7 +70,7 @@
           }
         },
         "fd-qwen3-coder-30b-ctx": {
-          "name": "Qwen3 Coder 30B (Fall Back • High Context 33 t/s)",
+          "name": "Qwen3 Coder 30B (Fall Back • High Context)",
           "tool_call": true,
           "limit": {
             "context": 81920,
@@ -92,7 +94,7 @@
           }
         },
         "fd-agents-A1-35B": {
-          "name": "Agents-A1 35B-A3B (Tool Specialist • 72 t/s)",
+          "name": "Agents-A1 35B-A3B (Tool Specialist)",
           "tool_call": true,
           "limit": {
             "context": 16384,
@@ -100,7 +102,7 @@
           }
         },
         "fd-ornith1.5-35b-smallC": {
-          "name": "Ornith 1.5 35B-A3B (Agentic • 71 t/s)",
+          "name": "Ornith 1.5 35B-A3B (Agentic • Small Context)",
           "tool_call": true,
           "limit": {
             "context": 16384,
@@ -108,7 +110,7 @@
           }
         },
         "fd-ornith1.5-35b-bigC": {
-          "name": "Ornith 1.5 35B-A3B (Agentic • 71 t/s)",
+          "name": "Ornith 1.5 35B-A3B (Agentic • Big Context)",
           "tool_call": true,
           "limit": {
             "context": 131072,
@@ -116,7 +118,7 @@
           }
         },
         "fd-gpt-oss-20b": {
-          "name": "GPT-OSS 20B (64K Context • 68 t/s)",
+          "name": "GPT-OSS 20B (64K Context)",
           "tool_call": true,
           "limit": {
             "context": 65536,
@@ -186,5 +188,6 @@
   },
   "instructions": [
     "CRITICAL: The current year is 2026. Do not append '2024' or any other outdated years to search queries, Exa tool parameters, or user prompts. Always search using the true current year or leave temporal keywords out of the query unless explicitly requested by the user."
-  ]
+  ],
+  "_last_reload_probe": true
 }
