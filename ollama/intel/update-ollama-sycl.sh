@@ -18,6 +18,7 @@ fi
 
 echo "=== 2. Running official Ollama installer ==="
 curl -fsSL https://ollama.com/install.sh | sh
+sleep 5
 
 NEW_VER=$(ollama --version | awk '{print $NF}')
 echo "Updated Ollama: $OLD_VER -> $NEW_VER"
