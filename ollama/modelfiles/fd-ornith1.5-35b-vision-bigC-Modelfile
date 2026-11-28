@@ -1,3 +1,3 @@
-FROM fd-ornith1.5-35b-base
+FROM fd-ornith1.5-35b-vision-base
 
 PARAMETER num_ctx 98304
