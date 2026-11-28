@@ -1,6 +1,6 @@
 # Use the official Hugging Face GGUF tag so Ollama enables native tool-calling support
 # (The default library tag 'ornith-1.5:35b' omits the 'tools' capability and bundles a 1.3 GB vision projector)
-FROM hf.co/ornith-ai/Ornith-1.5-35B-A3B-GGUF:Q4_K_M
+FROM hf.co/fermentedDairy/Ornith-1.5-35B-A3B-GGUF-Text-Only:Q4_K_M
 
 PARAMETER num_batch 512
 PARAMETER num_keep -1
